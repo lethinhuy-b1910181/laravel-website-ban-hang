@@ -10,6 +10,7 @@ use App\Models\Provider;
 use App\Models\ReceiptDetail;
 use App\Models\ReceiptProduct;
 use App\Models\ColorDetail;
+use App\Models\KhoHang;
 use App\DataTables\ReceiptDataTable;
 use App\DataTables\ReceiptDetailDataTable;
 use Auth;
@@ -50,7 +51,7 @@ class ReceiptController extends Controller
     {
         $totalPrice = ReceiptDetail::sum(DB::raw('price * quantity'));
         $receipt = new Receipt();
-        $receipt->user_id =  Auth::guard('customer')->user()->id;
+        $receipt->user_id =  Auth::guard('admin')->user()->id;
         $receipt->provider_id = $request->provider_id;
         $receipt->note = $request->note;
         $current_time = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
@@ -141,6 +142,25 @@ class ReceiptController extends Controller
         $current_time = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
         $receipt->confirm_date = $current_time;
         $receipt->save();
+        $receiptProduct = ReceiptProduct::where('receipt_id', $receipt->id)->get();
+        foreach($receiptProduct as $item){
+            $productColor = ColorDetail::where([
+                                                    'product_id' => $item->product_id,
+                                                    'color_id' => $item->color_id
+                                                ])->first();
+            if($productColor){
+                $productColor->quantity += $item->quantity;
+                $productColor->save(); 
+            }
+            $khoHang = new KhoHang();
+            $khoHang->product_id = $item->product_id;
+            $khoHang->color_id = $item->color_id;
+            $khoHang->quantity = $item->quantity;
+            $khoHang->price = $item->price;
+            $khoHang->save();
+        }
+
+
 
         return response(['message' => 'Cập nhật trạng thái thành công!']);
     }

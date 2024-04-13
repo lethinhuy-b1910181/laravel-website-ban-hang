@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('product_id');
             $table->integer('color_id');
             $table->integer('quantity')->default(0);
+            $table->integer('sale')->default(0);
             $table->timestamps();
         });
     }

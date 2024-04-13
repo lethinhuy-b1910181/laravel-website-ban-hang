@@ -15,11 +15,17 @@ class CustomerSeeder extends Seeder
         DB::table('customers')->insert([
            
             [
-                'name' => 'Nhu y',
-                'email' => 'nhuy@gmail.com',
+                'name' => 'Nguyễn Ngọc Nhi',
+                'email' => 'lethinhuy4848@gmail.com',
                 'status' => 'active',
                 'password' => bcrypt('password')
             ],
+            [
+                'name' => 'Trần Bạch',
+                'email' => 'lethinhuy1005@gmail.com',
+                'status' => 'active',
+                'password' => bcrypt('password')
+            ]
         ]);
     }
 }

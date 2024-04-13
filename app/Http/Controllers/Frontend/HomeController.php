@@ -10,6 +10,7 @@ use App\Models\CartUser;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Color;
+use App\Models\ProductReview;
 use Auth;
 class HomeController extends Controller
 {

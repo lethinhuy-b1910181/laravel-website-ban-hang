@@ -5,18 +5,60 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
+use App\Models\Product;
 use App\Models\Quyen;
+use App\Models\OrderTotal;
 use App\Models\ChiTietQuyen;
+use App\Models\Statistical;
 use App\DataTables\AdminDataTable;
 use App\DataTables\AdminShipperDataTable;
 use App\Mail\Websitemail;
+use Carbon\Carbon;
 use Hash;
 use Auth;
 
 class AdminController extends Controller
 {
     public function dashboard(){
-        return view('admin.dashboard');
+        // $products = []; 
+        $products = Product::where('sales' ,'>', 0)->orderBy('sales', 'desc')->take(10)->get();
+        $total_order = Statistical::sum('total_order');
+        $total_sale = Statistical::sum('sales');
+        $total_profit = Statistical::sum('profit');
+
+
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+
+        $isCurrentMonth = $currentMonth == $currentMonth;
+
+        $total_order = Statistical::whereYear('order_date', $currentYear)
+            ->whereMonth('order_date', $currentMonth)
+            ->sum('total_order');
+
+            $newOrders = OrderTotal::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->where('order_status', 0)
+            ->count();
+
+        // Lọc và tính tổng số đơn hàng đang giao (order_status = 2)
+        $shippingOrders = OrderTotal::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->where('order_status', 2)
+            ->count();
+
+        // Lọc và tính tổng số đơn hàng đã hoàn thành (order_status = 3)
+        $completedOrders = OrderTotal::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->where('order_status', 3)
+            ->count();
+
+            $canceledOrders = OrderTotal::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->where('order_status', 4)
+            ->count();
+        return view('admin.dashboard', compact('products', 'total_order', 'total_sale', 'total_profit', 'completedOrders', 'shippingOrders', 'newOrders', 'isCurrentMonth', 'canceledOrders'));
     }
 
     public function indexStaff(AdminDataTable $dataTable)

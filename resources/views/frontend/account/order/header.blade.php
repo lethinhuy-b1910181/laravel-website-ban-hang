@@ -7,7 +7,7 @@
         <span class="NoH9rC">Chờ xác nhận</span>
 
         @php
-        $orderCount = \App\Models\Order::where('user_id', Auth::guard('customer')->user()->id)->where('order_status', 0)->count();
+        $orderCount = \App\Models\OrderTotal::where('user_id', Auth::guard('customer')->user()->id)->where('order_status', 0)->count();
         
         @endphp
         @if ($orderCount !=0)
@@ -18,7 +18,7 @@
     <a class="KI5har {{ setActiveHead(['user.orders.wait-ship']) }}"  href="{{ route('user.orders.wait-ship') }}">
         <span class="NoH9rC">Chờ vận chuyển</span>
         @php
-        $orderCount = \App\Models\Order::where('user_id', Auth::guard('customer')->user()->id)->where('order_status', 1)->count();
+        $orderCount = \App\Models\OrderTotal::where('user_id', Auth::guard('customer')->user()->id)->where('order_status', 1)->count();
         
         @endphp
         @if ($orderCount !=0)
@@ -29,7 +29,7 @@
     <a class="KI5har {{ setActiveHead(['user.orders.shipping']) }}"  href="{{ route('user.orders.shipping') }}">
         <span class="NoH9rC">Đang giao hàng</span>
         @php
-        $orderCount = \App\Models\Order::where('user_id', Auth::guard('customer')->user()->id)->where('order_status', 2)->where('shipper_status', 1)->count();
+        $orderCount = \App\Models\OrderTotal::where('user_id', Auth::guard('customer')->user()->id)->where('order_status', 2)->where('shipper_status', 1)->count();
         
         @endphp
         @if ($orderCount !=0)

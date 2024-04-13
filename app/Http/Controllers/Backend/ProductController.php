@@ -110,10 +110,13 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $category = Category::where('id', $product->category_id)->first();
         $brand = Brand::where('id', $product->brand_id)->first();
-        $sl = ReceiptProduct::where('product_id', $id)->sum('quantity');
-        $receiptProduct = ReceiptProduct::where('product_id', $id)->get();
+        $sale = ColorDetail::where('product_id', $id)->sum('sale');
+        $sl = ColorDetail::where('product_id', $id)->sum('quantity') - $sale;
 
-        return view('admin.product.show', compact('product', 'category', 'brand','sl', 'receiptProduct' ));
+        $receiptProduct = ReceiptProduct::where('product_id', $id)->get();
+        $productColor = ColorDetail::where('product_id', $id)->get();
+
+        return view('admin.product.show', compact('product', 'category', 'brand','sl', 'receiptProduct', 'productColor', 'sale' ));
     }
 
     /**

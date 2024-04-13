@@ -1233,8 +1233,8 @@ select.form-control:not([size]):not([multiple]) {
   font-size: 12px;
   letter-spacing: .5px;
   margin-top: 4px;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  /* text-overflow: ellipsis; */
+  /* overflow: hidden; */
   white-space: nowrap;
 }
 
@@ -4507,4 +4507,31 @@ address {
   margin-top: 10px !important;
   margin-bottom: 15px !important;
   border-top-color: #80808047 !important;
+}
+
+
+.table:not(.table-sm) thead th {
+  color: white !important;
+}
+
+
+.sale-container .sale-title{
+  justify-content: start !important;
+}
+
+.sale-container .sale-title span{
+  color: #103679;
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.sale-btn-submit{
+  padding-top: 32px;
+  text-align: center;
+}
+
+
+#orders-month:hover{
+  text-decoration: underline;
 }

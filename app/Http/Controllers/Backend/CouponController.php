@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Coupon;
+use App\Models\Discount;
 use App\DataTables\CouponDataTable;
 
 class CouponController extends Controller
@@ -32,8 +32,32 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => ['required', 'max:200'],
+            'code' => ['required', 'max:200'],
+            'value' => ['required', 'max:200', 'integer'],
+            'min_price' => ['required', 'integer'],
+            'start_date' => ['required'],
+            'end_date' => ['required'],
+            'type' => ['required'],
+        ]);
+
+        $coupon = new Discount();
+        $coupon->name = $request->name;
+        $coupon->code = $request->code;
+        $coupon->value = $request->value;
+        $coupon->min_price = $request->min_price;
+        $coupon->min_order = $request->min_order;
+        $coupon->max_price = $request->max_price;
+        $coupon->start_date = $request->start_date;
+        $coupon->end_date = $request->end_date;
+        $coupon->type = $request->type;
+        $coupon->check_use = 0;
+        $coupon->save();
+        toastr('Thêm mã thành công!', 'success', 'Thành công');
+        return redirect()->route('admin.coupon.index');
     }
+
 
     /**
      * Display the specified resource.
@@ -46,9 +70,10 @@ class CouponController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+   public function edit(string $id)
     {
-        //
+        $coupon = Discount::findOrFail($id);
+        return view('admin.coupon.edit', compact('coupon'));
     }
 
     /**
@@ -56,7 +81,29 @@ class CouponController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => ['required', 'max:200'],
+            'code' => ['required', 'max:200'],
+            'value' => ['required', 'max:200', 'integer'],
+            'min_price' => ['required', 'integer'],
+            'start_date' => ['required'],
+            'end_date' => ['required'],
+            'type' => ['required'],
+        ]);
+        $coupon = Discount::findOrFail($id);
+        $coupon->name = $request->name;
+        $coupon->code = $request->code;
+        $coupon->value = $request->value;
+        $coupon->min_price = $request->min_price;
+        $coupon->min_order = $request->min_order;
+        $coupon->max_price = $request->max_price;
+        $coupon->start_date = $request->start_date;
+        $coupon->end_date = $request->end_date;
+        $coupon->type = $request->type;
+        $coupon->check_use = 0;
+        $coupon->save();
+        toastr('Cập nhật thành công!', 'success', 'Thành công');
+        return redirect()->route('admin.coupon.index');
     }
 
     /**

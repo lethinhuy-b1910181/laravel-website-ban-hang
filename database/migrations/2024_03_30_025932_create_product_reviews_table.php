@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('user_id')->nullable();
             $table->integer('product_id')->nullable();
+            $table->integer('color_id')->nullable();
             $table->integer('order_id')->nullable();
             $table->integer('star')->nullable();
             $table->text('review')->nullable();

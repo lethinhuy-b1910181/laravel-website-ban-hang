@@ -245,10 +245,10 @@
                     
                             <div class="wsus__order_details_summery">
                                 <p class=" ">Tiền hàng: <span class="text-danger  fw-bold">{{ number_format(getCartTotal($user_id), 0, ',', '.') }}&#8363;</span></p>
-                                <p>Mã giảm: <span class="text-danger  fw-bold">5%</span></p>
-                                <p>Tổng tiền được giảm: <span class="text-danger  fw-bold">10</span></p>
+                                <p>Mã giảm: <span class="text-danger  fw-bold">{{ getDiscountCode() }}</span></p>
+                                <p>Tổng tiền được giảm: <span class="text-danger  fw-bold">{{ number_format(getCartDiscount($user_id), 0, ',', '.') }}&#8363;</span></p>
                                 <hr>
-                                <p><b>Tiền thanh toán:</b> <span class="text-danger  fw-bold"><b>{{ number_format(getCartTotal($user_id), 0, ',', '.') }}&#8363;</b></span></p>
+                                <p><b>Tiền thanh toán:</b> <span class="text-danger  fw-bold"><b>{{ number_format(getMainCartTotal($user_id), 0, ',', '.') }}&#8363;</b></span></p>
                             </div>
                         
                             <p class="wsus__product">PHƯƠNG THỨC THANH TOÁN</p>

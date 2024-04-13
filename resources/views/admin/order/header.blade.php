@@ -7,7 +7,7 @@
         <span class="NoH9rC">Đơn mới</span>
 
         @php
-        $orderCount = \App\Models\Order::where('order_status', 0)->count();
+        $orderCount = \App\Models\OrderTotal::where('order_status', 0)->count();
         
         @endphp
         @if ($orderCount !=0)
@@ -18,7 +18,7 @@
     <a class="KI5har {{ setActiveHead(['admin.order.wait-ship']) }}"  href="{{ route('admin.order.wait-ship') }}">
         <span class="NoH9rC">Chờ vận chuyển</span>
         @php
-        $orderCount = \App\Models\Order::where('order_status', 1)->count();
+        $orderCount = \App\Models\OrderTotal::where('order_status', 1)->count();
         
         @endphp
         @if ($orderCount !=0)
@@ -29,7 +29,7 @@
     <a class="KI5har {{ setActiveHead(['admin.order.shipping']) }}"  href="{{ route('admin.order.shipping') }}">
         <span class="NoH9rC">Đang giao</span>
         @php
-        $orderCount = \App\Models\Order::where('order_status', 2)->where('shipper_status', 1)->count();
+        $orderCount = \App\Models\OrderTotal::where('order_status', 2)->where('shipper_status', 1)->count();
         
         @endphp
         @if ($orderCount !=0)
@@ -41,7 +41,7 @@
     <a class="KI5har {{ setActiveHead(['admin.order.completed']) }}"  href="{{ route('admin.order.completed') }}">
         <span class="NoH9rC">Hoàn thành</span>
         @php
-        $orderCount = \App\Models\Order::where('order_status', 3)->count();
+        $orderCount = \App\Models\OrderTotal::where('order_status', 3)->count();
         
         @endphp
         @if ($orderCount !=0)
@@ -53,7 +53,7 @@
     <a class="KI5har {{ setActiveHead(['admin.order.canceled']) }}"  href="{{ route('admin.order.canceled') }}">
         <span class="NoH9rC">Đã hủy</span>
         @php
-        $orderCount = \App\Models\Order::where('order_status', 4)->count();
+        $orderCount = \App\Models\OrderTotal::where('order_status', 4)->count();
         
         @endphp
         @if ($orderCount !=0)

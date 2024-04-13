@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\OrderTotal;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -88,9 +88,9 @@ class CompletedOrderDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Order $model): QueryBuilder
+    public function query(OrderTotal $model): QueryBuilder
     {
-        return $model::where('order_status' , 3)->newQuery();
+        return $model::where('order_status' , 3)->latest()->newQuery();
     }
 
     /**
@@ -142,6 +142,6 @@ class CompletedOrderDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Order_' . date('YmdHis');
+        return 'OrderTotal_' . date('YmdHis');
     }
 }

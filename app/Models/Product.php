@@ -18,7 +18,7 @@ class Product extends Model
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class, 'order_product');
+        return $this->belongsToMany(OrderTotal::class, 'order_product');
     }
     public function brand()
     {
@@ -32,6 +32,11 @@ class Product extends Model
 
     public function productImage(){
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function receiptDetails()
+    {
+        return $this->hasMany(ReceiptDetail::class);
     }
     use HasFactory;
 

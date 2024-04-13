@@ -6,6 +6,7 @@
     $district = \App\Models\District::where('id', $address->district_id)->first();
     $ward = \App\Models\Ward::where('id', $address->ward_id)->first();
     $shippers = \App\Models\Shipper::where('status', 1)->get();
+    $coupon = json_decode($order->order_coupon);
 @endphp
 
 @extends('admin.layouts.master')
@@ -42,6 +43,8 @@
                                   Đang chờ duyệt
                               @elseif($order->order_status == 1 && $order->shipper_status == 0)
                                   Đơn hàng đã được duyệt và Đang chuyển giao cho Shipper
+                              @elseif($order->order_status == 1 && $order->shipper_status == 2)
+                                  Shipper từ chối nhận đơn
                               @elseif($order->order_status == 1 && $order->shipper_status == 1)
                                   Shipper đã nhận đơn và đang chuẩn bị giao hàng
                               @elseif($order->order_status == 2)
@@ -57,7 +60,7 @@
                         <div class="row">
                           <div class="col-5">
                             <address>
-                              <strong>Ngày đặt hàng: <span class="text-dark">{{date('d-m-Y ' , strtotime($address->created_at)) }}</span></strong><br>
+                              <strong>Ngày đặt hàng: <span class="text-dark">{{date('d-m-Y ' , strtotime($order->created_at)) }}</span></strong><br>
                             </address>
                           </div>
                           <div class="col-5">
@@ -68,7 +71,7 @@
                                         @elseif($order->order_status == 3)
                                             Đã thanh toán
                                         @else
-                                            Chưa thanh toán
+                                            Thanh toán khi nhận hàng
                                         @endif
                                       </span></strong>
                             </address>
@@ -125,7 +128,6 @@
                                 <tr>
                                   <th data-width="40">#</th>
                                   <th class="text-center">Hình ảnh</th>
-
                                   <th>Tên sản phẩm</th>
                                   <th class="text-center">Số lượng</th>
                                   <th class="text-right">Đơn giá</th>
@@ -155,25 +157,36 @@
                                 <b class="section-lead text-info">Thanh toán bằng {{ $order->payment_method }}</b>
                               </div>
                               <div class="col-lg-5 ">
-                                <div class="invoice-detail-item">
-                                    <div class="invoice-detail-value invoice-detail-value-lg">Tiền hàng : <span class="text-danger text-bold fs-3">{{  number_format($order->amount, 0, ',', '.')}} &#8363;</span></div>
-
+                                @php
+                                if($coupon){
+                                    if($coupon->coupon_type ==0){
+                                        $text = '%';
+                                    }else {
+                                        $text = '₫';
+                                    }
+                                }else $text = '';
                                     
-                                </div>
-                                <div class="invoice-detail-item">
-                                  <div class="invoice-detail-value invoice-detail-value-lg">Mã giảm : <span class="text-danger text-bold fs-3">15%</span></div>
-                                  
-                                </div>
-                                <div class="invoice-detail-item">
-                                    <div class="invoice-detail-value invoice-detail-value-lg">Tổng tiền giảm : <span class="text-danger text-bold fs-3">15</span></div>
+                                    
+                                @endphp
+                               <div class="invoice-detail-item">
+                                <div class="invoice-detail-value invoice-detail-value-lg">Tiền hàng : <span class="text-danger text-bold fs-3">{{  number_format($order->sub_total, 0, ',', '.')}} &#8363;</span></div>
 
-                                   
-                                  </div>
-                                <hr class="mt-2 mb-2">
-                                <div class="invoice-detail-item">
-                                    <div class="invoice-detail-value invoice-detail-value-lg">Tổng tiền thanh toán : <span class="text-danger text-bold fs-3">{{  number_format($order->amount, 0, ',', '.')}} &#8363;</span></div>
-                                  
-                                </div>
+                                
+                            </div>
+                            <div class="invoice-detail-item">
+                              <div class="invoice-detail-value invoice-detail-value-lg">Mã giảm : <span class="text-danger text-bold fs-3">{{isset($coupon) ?  $coupon->coupon_min_price : 0 }}{{ $text }}</span></div>
+                              
+                            </div>
+                            <div class="invoice-detail-item">
+                                <div class="invoice-detail-value invoice-detail-value-lg">Tổng tiền giảm : <span class="text-danger text-bold fs-3">{{isset($coupon) ?  number_format( $order->sub_total - $order->amount, 0, ',', '.') : 0}} &#8363;</span></div>
+
+                               
+                              </div>
+                            <hr class="mt-2 mb-2">
+                            <div class="invoice-detail-item">
+                                <div class="invoice-detail-value invoice-detail-value-lg">Tổng tiền thanh toán : <span class="text-danger text-bold fs-3">{{  number_format($order->amount, 0, ',', '.')}} &#8363;</span></div>
+                              
+                            </div>
                               </div>
                             </div>
                           </div>
@@ -181,41 +194,78 @@
                       </div>
                       <hr>
                       @if ($order->shipper_status == 0)
-                      <form  action="{{ route('shipper.chang-status', $order->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+                      
                         <div class="text-md-right ml-3 ">
                           <div class="float-lg-right  ">
-                            <button class="btn btn-danger btn-icon icon-left"><i class="fas fa-times"></i> Từ chối</button>
-
+                              <form  action="{{ route('shipper.change-status-cancel') }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="order_id" value="{{ $order->id  }}">
+                                <button class="btn btn-danger btn-icon icon-left " type="submit"   onclick="return confirm('Xác nhận từ chối đơn hàng?')"><i class="fas fa-times"></i> Từ chối</button>
+                            
+                              </form>
+                        
                           </div>
                             
                             <div class="float-lg-right mb-lg-0 mb-3 ml-2 mr-2 ">
-                              <button data-id="{{ $order->id }}" onclick="return confirm('Bạn có chắc chắn muốn duyệt đơn hàng không?')"  class=" shipper-confirm-submit  btn btn-info btn-icon icon-left" type="submit" ><i class="fas fa-check"></i> Nhận đơn</button>
-                                
+                              <form  action="{{ route('shipper.chang-status', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <button data-id="{{ $order->id }}" onclick="return confirm('Xác nhận đơn hàng?')"  class=" shipper-confirm-submit  btn btn-info btn-icon icon-left" type="submit" ><i class="fas fa-check"></i> Nhận đơn</button>
+                              </form>
                             </div>
 
                         </div>
-                     </form>
-                      @else
-                      <form  action="{{ route('shipper.chang-status-2', $order->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="text-md-right ml-3 ">
+                   
+                      @elseif($order->shipper_status == 1)
+                     
+                        <div class="text-md-right ml-3 " id="btn-xacnhan">
                           <div class="float-lg-right  ">
-                            <button class="btn btn-danger btn-icon icon-left"><i class="fas fa-times"></i> Thất bại</button>
-
+                            <button class="btn btn-danger btn-icon icon-left" id="failButton" ><i class="fas fa-times" ></i> Thất bại</button>
+                           
                           </div>
-                            
+                          <form  action="{{ route('shipper.chang-status-2', $order->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
                             <div class="float-lg-right mb-lg-0 mb-3 ml-2 mr-2 ">
                               <button  class="  btn btn-info btn-icon icon-left" type="submit" ><i class="fas fa-check"></i> Hoàn thành</button>
                                 
                             </div>
+                          </form>
+                        </div>
+                        
+                        <div class="d-none" id="failureReason">
+                      
+                            <div class="" style="
+                            padding-bottom: 10px;
+                        ">
+                                <span style="
+                                color: darkblue;
+                                text-transform: capitalize;
+                                font-weight:600;
+                            ">Lí Do Giao Hàng Không Thành Công</span>
+                            </div>
+
+
+                            <form action="" method="POST">
+                                @csrf
+                               
+                              
+                                <div >
+                                    <textarea class="form-control" name="reason" id="" cols="30" rows="4" placeholder="Để lại lí do giao hàng không thành công..."></textarea>
+                                </div>
+
+                                <br>
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button class="btn btn-info text-light" type="submit"> Gửi Lí Do</button>
+                          <button class="btn btn-danger btn-icon icon-left ml-2 " id="backButton" ><i class="fas fa-times" ></i> Quay lại</button>
+
+                                </div>
+                            </form>
 
                         </div>
-                     </form>
                       @endif
-                        
+                      
                      
                     </div>
                   </div>
@@ -231,6 +281,44 @@
 @endsection
 
 @push('scripts')
+
+<script>
+  function tuchoidonhang(id){
+      var id = id;
+      var lydo = $('.lidotuchoi').val();
+      var shipper_status = 0;
+      alert(id);
+      alert(lydo);
+      alert(shipper_status);
+      var _token = $('input[name="_token"]').val();
+      $.ajax({
+          url: "{{ route('shipper.change-status-cancel') }}",
+          method: "POST",
+
+          data: {id: id, lydo: lydo, shipper_status: shipper_status, _token: _token},
+          success: function(data){
+              alert('Hủy đơn hàng thành công!');
+              location.reload();
+          }
+      });
+  }
+</script>
+
+<script>
+  document.getElementById('failButton').addEventListener('click', function() {
+      // Ẩn các nút "Hoàn thành" và form
+      document.getElementById('btn-xacnhan').style.display = 'none';
+      // Hiển thị phần tử chứa thông tin lý do thất bại
+      document.getElementById('failureReason').classList.remove('d-none');
+  });
+
+  document.getElementById('backButton').addEventListener('click', function() {
+      // Hiển thị lại các nút "Hoàn thành" và form
+      document.getElementById('btn-xacnhan').style.display = 'block';
+        // Thêm lại lớp d-none
+        document.getElementById('failureReason').classList.add('d-none');
+  });
+</script>
 
 {{-- <script>
   $(document).ready(function(){

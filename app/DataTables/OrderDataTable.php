@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\OrderTotal;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -66,7 +66,12 @@ class OrderDataTable extends DataTable
                 if($query->order_status == 0){
                     $button = '<span class="btn btn-info btn-sm">Chờ duyệt <i class="fas fa-clock"></i> </span>';
                 }else if($query->order_status == 1){
-                    $button = '<span class="btn btn-primary btn-sm">Chờ vận chuyển <i class="fas fa-hourglass-half"></i></span>';
+                    if($query->shipper_status == 2){
+                        $button = '<span class="btn btn-warning btn-sm">Shipper không nhận<i class="bx bx-x-circle"></i></span>';
+                    }
+                    else if($query->shipper_status == 0){
+                        $button = '<span class="btn btn-primary btn-sm">Chờ vận chuyển <i class="fas fa-hourglass-half"></i></span>';
+                    }
                 }else if($query->order_status == 2){
                     $button = '<span class="btn btn-warning btn-sm" >Đang vận chuyển <i class="fas fa-truck"></i></span>';
                 }
@@ -74,7 +79,7 @@ class OrderDataTable extends DataTable
                     $button = '<span class="btn btn-success btn-sm">Hoàn thành <i class="fa fa-check"></i></span>';
                 }
                 else if($query->order_status == 4){
-                    $button = '<span class="btn btn-success btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
+                    $button = '<span class="btn btn-danger btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
                 }
                 
                 return $button;
@@ -88,7 +93,7 @@ class OrderDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Order $model): QueryBuilder
+    public function query(OrderTotal $model): QueryBuilder
     {
         return $model::orderBy('order_status' , 'asc')->newQuery();
     }
@@ -142,6 +147,6 @@ class OrderDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Order_' . date('YmdHis');
+        return 'OrderTotal_' . date('YmdHis');
     }
 }

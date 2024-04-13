@@ -45,10 +45,10 @@
             
           </li>
           
-          <li class="dropdown {{ setActive(['admin.product-color.*']) }}">
+          {{-- <li class="dropdown {{ setActive(['admin.product-color.*']) }}">
             <a href="{{ route('admin.product-color.index') }}" class="nav-link "><i class="icon-size fa fa-magic text-info"></i><span>Màu sắc</span></a>
             
-          </li>
+          </li> --}}
         <li class="dropdown {{ setActive(['admin.provider.*']) }}">
           <a href="{{ route('admin.provider.index') }}" class="nav-link "><i class="icon-size fas fa-star text-warning"></i><span>Nhà cung cấp</span></a>
           

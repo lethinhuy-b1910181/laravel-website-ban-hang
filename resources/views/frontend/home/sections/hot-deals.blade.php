@@ -33,12 +33,30 @@
                             {{ $temp->name}} 
                         </a>
                         <p class="wsus__pro_rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(133 review)</span>
+                            
+                            @for ($i = 1; $i <= 5; $i++)
+                                
+                                @php
+                                    $colorStar = \App\Models\ProductReview::where( 'product_id', $item->id)->first();
+
+                                    
+                                    if($colorStar){
+                                        $count = $colorStar->count();
+                                        if($i <= $colorStar->star){
+                                            $colorIcon = 'color:#ffcc00;';
+                                        }else{
+                                            $colorIcon = 'color:#ccc;';
+
+                                        }
+                                    }else {
+                                        $colorIcon = 'color:#ccc;'; 
+                                        $count = 0;
+                                    }
+                                @endphp
+                                    <i class="fas fa-star" style="{{  $colorIcon }}"></i>
+                                @endfor
+                            <span>{{ $count }} Đánh giá</span>
+                       
                         </p>
                         <a class="wsus__pro_name wsus__pro_name-home"  data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $item->name }}" href="{{ route('product-detail',$item->slug) }}">{{ $item->name }}</a>
                         <p class="wsus__price text-danger"  >{{ number_format($item->offer_price, 0, ',', '.') }}&#8363;</p>
@@ -106,30 +124,83 @@
                                 <h4>{{ number_format($product->offer_price, 0, ',', '.') }}&#8363;</h4>
                                     <p class="wsus__stock_area"></p>
                                     <p class="review">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star-half-alt"></i>
-                                        <span>20 review</span>
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            
+                                            @php
+                                                $colorStar = \App\Models\ProductReview::where( 'product_id', $product->id)->first();
+
+                                               
+                                                if($colorStar){
+                                                    $count = $colorStar->count();
+                                                    if($i <= $colorStar->star){
+                                                        $colorIcon = 'color:#ffcc00;';
+                                                    }else{
+                                                        $colorIcon = 'color:#ccc;';
+
+                                                    }
+                                                }else {
+                                                    $colorIcon = 'color:#ccc;'; 
+                                                    $count = 0;
+                                                }
+                                            @endphp
+                                                <i class="fas fa-star" style="{{  $colorIcon }}"></i>
+                                            @endfor
+                                        <span>{{ $count }} Đánh giá</span>
                                     </p>
                                     <p class="description">{!! $product->short_description !!}</p>
+                                    <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
+                                    <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
+                                    <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
 
-                                    <div class="wsus__selectbox">
-                                        <div class="row">
-                                            <div class="col-xl-6 col-sm-6">
-                                                <h5 class="mb-2">Chọn màu:</h5>
-                                                <select class="select_2" name="colors_item[]">
-                                                    @foreach ($product->colors as $color)
-                                                        <option value="{{ $color->id }}" >{{ $color->name }}</option>
-                                                    
-                                                    @endforeach
-                                                
-                                                </select>
-                                            </div>
+                                    @php
+                                    $colors= App\Models\ColorDetail::where('product_id', $product->id)->get();
+                                @endphp
+                                @if ($colors != NULL)
+                                <p style="padding-bottom: 5px; font-weight: 600">Chọn màu để xem giá:</p>
+                                <div class="box-content">
+                                    <ul class="list-variants" id="color-list">
+                                        
+                                        @foreach ($colors as $color)
+                                        @php
+                                            $min_price_product = App\Models\ReceiptProduct::where(['product_id' => $product->id])->min('price');
+                                            $receiptPrice = App\Models\ReceiptProduct::where(['product_id' => $product->id, 'color_id' => $color->color_id])->max('price');
+                                            if($receiptPrice == NULL){
+                                                $receiptPrice = 0;
+                                            }
+
+                                            if($min_price_product == NULL){
+                                                $min_price_product = 0;
+                                            }
+
+                                            $temp = $receiptPrice - $min_price_product;
+                                            if($receiptPrice > $min_price_product)
+                                            {
+                                                if($product->offer_price + $temp  == $product->offer_price){
+                                                    $t = 'active';
+
+                                                }else $t = '';
+                                            }else $t ='';
                                             
-                                        </div>
-                                    </div>
+                                            if($color->quantity - $color->sale == 0){
+                                                $d = 'disable';
+                                            }else $d = '';
+
+                                            $quantity = $color->quantity - $color->sale;
+
+                                        @endphp
+                                        <li class="item-variant {{ $t }} {{ $d }}" data-temp="{{ $temp }}" data-quantity="{{ $quantity }}">
+                                            <input type="hidden" class="color-item" data-id="{{ $color->color_id }}"  >
+                                            <div class="is-flex is-flex-direction-column">
+                                                <strong class="item-variant-name">{{ $color->color->name}}</strong>
+                                                <span>{{ number_format($product->offer_price + $temp , 0, ',', '.') }}₫</span>
+                                            </div>
+                                        </li>
+                                        
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                    
+                                @endif
                                     
                                     
                                     <div class="wsus__quentity">
@@ -145,18 +216,7 @@
                                         <li><a href="#"><i class="fal fa-heart"></i></a></li>
                                         <li><a href="#"><i class="far fa-random"></i></a></li>
                                     </ul>
-                                    <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
-                            <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
-                            <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
-                                    <div class="wsus__pro_det_share">
-                                        <h5>share :</h5>
-                                        <ul class="d-flex">
-                                            <li><a class="facebook" href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                            <li><a class="twitter" href="#"><i class="fab fa-twitter"></i></a></li>
-                                            <li><a class="whatsapp" href="#"><i class="fab fa-whatsapp"></i></a></li>
-                                            <li><a class="instagram" href="#"><i class="fab fa-instagram"></i></a></li>
-                                        </ul>
-                                    </div>
+                               
                                 </div>
                             </div>
                         </div>

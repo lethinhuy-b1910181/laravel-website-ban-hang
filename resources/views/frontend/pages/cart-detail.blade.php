@@ -30,7 +30,7 @@
         <div class="container">
             <div class="row">
                 @if ($cartItems->count() > 0)
-                <div class="col-xl-9">
+                <div class="col-xl-8">
                     <div class="wsus__cart_list">
                         <div class="table-responsive">
                             <table>
@@ -60,7 +60,12 @@
                                         @foreach ($cartItems as $item)
                                             @php
                                                 $product = \App\Models\Product::where('id', $item->product_id)->first();
-                                                
+                                                $color = \App\Models\Color::where('id', $item->color_id)->first();
+                                             
+                                               
+                                                $quantityMinusSale = \App\Models\ColorDetail::where(['product_id' => $product->id, 'color_id' => $item->color_id])
+                                                                                            ->value('quantity')   -  \App\Models\ColorDetail::where(['product_id' => $product->id, 'color_id' => $item->color_id])
+                                                                                            ->value('sale');
                                             @endphp
                                             <tr class="d-flex">
                                                 <td class="wsus__pro_img">
@@ -68,11 +73,10 @@
                                                 </td>
 
                                                 <td class="wsus__pro_name">
-                                                    <p>{!! $product->name !!}</p>
-                                                    <b >{{ number_format($product->offer_price, 0, ',', '.') }}&#8363;</b>
-                                                    {{-- @foreach ($item->options->colors as $key =>$color)
-                                                    <span>&#40;Màu {{ $color['name'] }}&#41;</span>
-                                                    @endforeach --}}
+                                                    <a href="{{ route('product-detail', $product->slug) }}">{!! $product->name !!}&#40;{!! $color->name !!}&#41;</a>
+                                                
+                                                    <b class="text-align-end offer-price-cart" >{{ number_format( $item->product_price  , 0, ',', '.') }}&#8363;</b>
+                                              
                                                 </td>
 
                                             
@@ -80,12 +84,12 @@
                                                 <td class="wsus__pro_select">
                                                     <div class="product_qty_wrapper">
                                                         <button class="btn  product-decrement ">-</button>
-                                                        <input class="product-qty" data-rowid="{{ $item->id }}" type="text" min="1" max="100" value="{{ $item->qty }}" readonly/>
+                                                        <input class="product-qty" data-rowid="{{ $item->id }}" type="text" min="1" max="{{ $quantityMinusSale  }}" value="{{ $item->qty }}" />
                                                         <button class="btn  product-increment">+</button>
                                                     </div>
                                                 </td>
                                                 <td class="wsus__pro_tk">
-                                                    <h6 id="{{ $item->id }}">{{ number_format($product->offer_price*$item->qty, 0, ',', '.') }}&#8363; </h6>
+                                                    <h6 id="{{ $item->id }}">{{ number_format($item->product_price *$item->qty, 0, ',', '.') }}&#8363; </h6>
                                                 </td>
                                             
 
@@ -101,22 +105,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-3">
+                <div class="col-xl-4">
                     <div class="wsus__cart_list_footer_button" id="sticky_sidebar">
                         @php
                            
                             $user_id = \Illuminate\Support\Facades\Auth::guard('customer')->user()->id; // Lấy user_id của người dùng đang đăng nhập
                             $total = getCartTotal($user_id);
+                            $mainTotal = getMainCartTotal($user_id);
+                            $discountTotal = getCartDiscount($user_id);
                         @endphp 
-                        <h6>Tổng tiền</h6>
-                        <p >Tổng cộng: <span id="total">{{ isset($total) ? number_format($total, 0, ',', '.')  : '0' }}&#8363;</span>
+                        <h4>Tổng tiền</h4>
+                        <p >Tổng cộng: <span class="text-danger font-weight-bold" id="total" >{{ isset($total) ? number_format($total, 0, ',', '.')  : '0' }}&#8363;</span>
                         </p>
-                        <p>Mã giảm: <span>10.00</span></p>
-                        <p class="total"><span>Tiền thanh toán:</span> <span>{{ isset($total) ? number_format($total, 0, ',', '.')  : '0' }}&#8363;</span></p>
+                        <p>Mã giảm: <span class="text-danger font-weight-bold" id="discount_code" >{{  getDiscountCode()  }}</span></p>
+                        <p>Tổng tiền giảm: <span class="text-danger font-weight-bold" id="discount">{{   isset($discountTotal) ? number_format($discountTotal, 0, ',', '.')  : '0' }}&#8363;</span></p>
+                        <p class="total"><span>Tiền thanh toán:</span> <span class="text-danger font-weight-bold" id="cart_total">{{ isset($mainTotal) ? number_format($mainTotal, 0, ',', '.')  : '0' }}&#8363;</span></p>
 
                         <form id="coupon_form">
-                            <input type="text" placeholder="Coupon Code" name="coupon_code">
-                            <button type="submit" class="common_btn">apply</button>
+                            <input type="hidden" name="total" value="{{ $total }}" >
+                            <input type="text" placeholder="Nhập mã" name="coupon_code" value="{{ session()->has('coupon') ? session()->get('coupon')['coupon_code'] : '' }}">
+                            <button type="submit" class="common_btn btn-success" style=" width: 130px;">Áp mã</button>
                         </form>
                         <a class="common_btn mt-4 w-100 text-center" href="{{ route('user.checkout') }}" >Thanh toán</a>    
                        
@@ -157,32 +165,45 @@
             $('.product-increment').on('click', function(){
                 let input = $(this).siblings('.product-qty');
                 let quantity = parseInt(input.val()) + 1;
-                let rowId = input.data('rowid');
-                console.log(rowId);
-                
+                let maxQuantity = parseInt(input.attr('max'));
 
-                input.val(quantity);
+                if (quantity <= maxQuantity) { 
+                    let rowId = input.data('rowid');
 
-                $.ajax({
-                    url: "{{ route('cart.update-quantity') }}",
-                    method: 'POST',
-                    data: {
-                        rowId: rowId,
-                        quantity: quantity
-                    },
-                    success: function(data){
-                        if(data.status == 'success'){
-                            let productId = '#'+rowId;
-                            $(productId).text(data.product_total + '₫');
-                            updateTotal(data.total);
+                    input.val(quantity);
+
+                    $.ajax({
+                        url: "{{ route('cart.update-quantity') }}",
+                        method: 'POST',
+                        data: {
+                            rowId: rowId,
+                            quantity: quantity
+                        },
+                        success: function(data){
+                            if(data.status == 'success'){
+                                let productId = '#'+rowId;
+                                $(productId).text(data.product_total + '₫');
+                                updateTotal(data.total);
+                                calculateCoupon(function(status, message) {
+                                    if (status == 'success') {
+                                        toastr.success(message);
+                                    
+                                    } else {
+                                        toastr.error(message);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(data){
+                            console.log(data);
+
                         }
-                    },
-                    error: function(data){
-                        console.log(data);
 
-                    }
-
-                });
+                    });
+                }else {
+                    // Hiển thị thông báo khi vượt quá giá trị max
+                    toastr.warning('Chỉ có ' + maxQuantity + ' sản phẩm trong cửa hàng');
+                }
             });
 
             $('.product-decrement').on('click', function(){
@@ -208,6 +229,14 @@
                             let productId = '#'+rowId;
                             $(productId).text(data.product_total + '₫');
                             updateTotal(data.total);
+                            calculateCoupon(function(status, message) {
+                                if (status == 'success') {
+                                    toastr.success(message);
+                                
+                                } else {
+                                    toastr.error(message);
+                                }
+                            });
                         }
                     },
                     error: function(data){
@@ -272,7 +301,21 @@
                     
                     success: function(data){
                         if(data.status == 'error'){
+                            $('#discount').text(0 + '₫');
+                            $('#discount_code').text(0);
+                            $('#cart_total').text(data.cart_total);
                             toastr.error(data.message);
+                        }
+                        if(data.status == 'success'){
+                            calculateCoupon(function(status, message) {
+                                if (status == 'success') {
+                                    toastr.success(message);
+                                } else {
+                                    toastr.error(message);
+                                }
+                            });
+                           
+
                         }
                     },
                     error: function(data){
@@ -281,9 +324,36 @@
                     }
 
                 });
-            })
+            });
 
-            
+            function calculateCoupon(){
+                $.ajax({
+                    url: "{{ route('coupon-calculation') }}",
+                    method: 'GET',
+                    
+                    success: function(data){
+                        if(data.status == 'success'){
+                            $('#discount').text(data.discount );
+                            $('#discount_code').text(data.discount_code);
+                            $('#cart_total').text(data.cart_total );
+                            // toastr.success(data.message);
+                            
+                        } else if(data.status == 'error') {
+                            $('#discount').text(0 + '₫');
+                            $('#discount_code').text(0);
+                            $('#cart_total').text(data.cart_total  + '₫');
+                            toastr.error(data.message);
+                            
+                        }
+                        
+                    },
+                    error: function(data){
+                        console.log(data);
+                    }
+
+                });
+            }
+ 
         });
     </script>
 @endpush

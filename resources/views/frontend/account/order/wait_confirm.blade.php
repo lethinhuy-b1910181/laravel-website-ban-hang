@@ -30,7 +30,10 @@
                             $text = 'Chờ xác nhận';
                         }else if($order->order_status == 1 && $order->shipper_status ==0){
                             $text = 'Chờ vận chuyển';
-                        }else if($order->order_status == 2 && $order->shipper_status ==1){
+                        }else if($order->order_status == 1 && $order->shipper_status ==2){
+                            $text = 'Chờ vận chuyển';
+                        }
+                        else if($order->order_status == 2 && $order->shipper_status ==1){
                             $text = 'Đang giao hàng';
                         }else if($order->order_status == 3 ){
                             $text = 'Hoàn thành';
@@ -38,8 +41,15 @@
                             $text = 'Đã hủy';
                         }
                     @endphp
-                    <div class="bv3eJE" tabindex="0">{{ $text }}</div>
-                    <div class="kG_yF0"></div>
+                    <div class="bv3eJE" >
+                        <a href="" class="btn btn-danger">
+                            Huỷ đơn hàng</a>
+                        <span class="text-info">
+                            {{ $text }}
+                        </span>
+                       
+                    </div>
+                    
                     @foreach ($orderDetail as $item)
                         @php
                             $product = \App\Models\Product::where('id', $item->product_id)->first();
@@ -61,7 +71,12 @@
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <div class="rsautk" tabindex="0">Phân loại hàng: Xanh da trời,Massage + Sưởi ấm</div>
+                                                                @php
+
+                                                                    $color = \App\Models\Color::where('id', $item->color_id)->first();
+                                                                    
+                                                                @endphp
+                                                                <div class="rsautk" tabindex="0">Phân loại hàng: {{ $color->name }}</div>
                                                                 <div class="j3I_Nh" tabindex="0">x{{ $item->qty }}</div>
                                                             </div>
                                                         </div>

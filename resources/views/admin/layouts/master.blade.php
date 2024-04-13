@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="{{asset('backend/assets/modules/fontawesome/css/all.min.css')}}">
 
   <!-- CSS Libraries -->
+  <link rel="stylesheet" href="{{asset('backend/assets/modules/bootstrap-daterangepicker/daterangepicker.css')}}">
   <link rel="stylesheet" href="{{asset('backend/assets/modules/jqvmap/dist/jqvmap.min.css')}}">
   <link rel="stylesheet" href="{{asset('backend/assets/modules/summernote/summernote-bs4.css')}}">
   <link rel="stylesheet" href="{{asset('backend/assets/modules/owlcarousel2/dist/assets/owl.carousel.min.css')}}">
@@ -27,8 +28,13 @@
   <!-- Template CSS -->
   <link rel="stylesheet" href="{{asset('backend/assets/css/style.css')}}">
   <link rel="stylesheet" href="{{asset('backend/assets/css/components.css')}}">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
 <!-- Start GA -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+
+
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -36,6 +42,7 @@
 
   gtag('config', 'UA-94034622-3');
 </script>
+
 <!-- /END GA --></head>
 
 <body>
@@ -78,6 +85,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{{ asset('backend/assets/modules/select2/dist/js/select2.full.min.js') }}"></script>
+  <script src="{{ asset('backend/assets/modules/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
 
   
   <script src="//cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>
@@ -85,16 +93,39 @@
   <script src="{{ asset('backend/assets/js/page/index.js')}}"></script>
   <script src="{{ asset('backend/assets/modules/jquery-selectric/jquery.selectric.min.js') }}"></script>
 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
   
   
   <!-- Template JS File -->
   <script src="{{ asset('backend/assets/js/scripts.js')}}"></script>
   <script src="{{ asset('backend/assets/js/custom.js')}}"></script>
-
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
   
-  {{-- <script src="{{asset('backend/assets/modules/cleave-js/dist/cleave.min.js')}}"></script> --}}
-  {{-- <script src="{{asset('backend/assets/modules/cleave-js/dist/addons/cleave-phone.us.js')}}"></script> --}}
-  {{-- <script src="{{asset('backend/assets/js/page/forms-advanced-forms.js')}}"></script> --}}
+  <script>
+    $( function() {
+      $( "#datepicker" ).datepicker({
+        prevText:"Tháng trước",
+        nextText:"Tháng sau",
+        dateFormat:"yy-mm-dd",
+        dayNamesMin: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+        duration:"slow"
+      });
+      $( "#datepicker2" ).datepicker(
+        {
+        prevText:"Tháng trước",
+        nextText:"Tháng sau",
+        dateFormat:"yy-mm-dd",
+        dayNamesMin: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+        duration:"slow"
+      }
+      );
+    } );
+
+    
+    </script>
+
 
   <script>
     @if($errors->any())
@@ -117,6 +148,8 @@
 
        
 </script>
+
+
 
 <script>
   $(document).ready(function(){
@@ -210,14 +243,7 @@
 });
 </script>
 
-{{-- <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var cleaveC = new Cleave('.currency', {
-      numeral: true,
-      numeralThousandsGroupStyle: 'thousand'
-    });
-  }); --}}
-</script>
+
 
   @stack('scripts')
 </body>

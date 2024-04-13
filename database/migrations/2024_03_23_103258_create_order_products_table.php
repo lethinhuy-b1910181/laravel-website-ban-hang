@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('order_id');
             $table->integer('product_id');
+            $table->integer('color_id')->nullable();
             $table->string('product_name');
             $table->string('unit_price');
             $table->integer('qty');

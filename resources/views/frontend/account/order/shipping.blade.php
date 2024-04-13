@@ -61,7 +61,12 @@
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <div class="rsautk" tabindex="0">Phân loại hàng: Xanh da trời,Massage + Sưởi ấm</div>
+                                                                @php
+
+                                                                    $color = \App\Models\Color::where('id', $item->color_id)->first();
+                                                                    
+                                                                @endphp
+                                                                <div class="rsautk" tabindex="0">Phân loại hàng: {{ $color->name }}</div>
                                                                 <div class="j3I_Nh" tabindex="0">x{{ $item->qty }}</div>
                                                             </div>
                                                         </div>

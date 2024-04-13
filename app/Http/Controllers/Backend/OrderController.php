@@ -11,7 +11,7 @@ use App\DataTables\ShippingOrderDataTable;
 use App\DataTables\CanceledOrderDataTable;
 use App\DataTables\CompletedOrderDataTable;
 
-use App\Models\Order;
+use App\Models\OrderTotal;
 use App\Models\OrderProduct;
 
 
@@ -58,8 +58,9 @@ class OrderController extends Controller
             return redirect()->back();
         }
 
-        $order = Order::findOrFail($id);
+        $order = OrderTotal::findOrFail($id);
         $order->order_status = 1;
+        $order->shipper_status = 0;
         $order->shipper_id = $request->shipper_id;
         $order->save();
         
@@ -89,7 +90,7 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        $order = Order::findOrFail($id);
+        $order = OrderTotal::findOrFail($id);
         $orderDetail = OrderProduct::where('order_id', $order->id)->get();
         return view('admin.order.show', compact('order', 'orderDetail'));
     }

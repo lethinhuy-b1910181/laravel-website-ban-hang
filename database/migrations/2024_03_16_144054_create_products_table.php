@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('category_id');
             $table->integer('brand_id');
             $table->text('short_description');
-            $table->text('long_description');
+            $table->longtext('long_description')->nullable();
             $table->text('video_link')->nullable();
             $table->string('sku')->nullable();
             $table->double('offer_price')->nullable();

@@ -22,10 +22,12 @@ return new class extends Migration
             $table->string('payment_method');
             $table->integer('payment_status');
             $table->text('order_address');
+            $table->text('order_coupon')->nullable();
             $table->text('shipping_method')->nullable();
             $table->text('coupon')->nullable();
             $table->integer('shipper_status')->nullable();
             $table->integer('order_status');
+            $table->integer('order_review')->default(0);
             $table->timestamps();
         });
     }

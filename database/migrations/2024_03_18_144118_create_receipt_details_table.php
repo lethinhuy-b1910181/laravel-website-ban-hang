@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
           
             $table->integer('product_id');
-            $table->integer('color_id');
+            $table->integer('color_id')->nullable();
             $table->integer('quantity')->default(0);
             $table->double('price')->default(0);
             $table->timestamps();

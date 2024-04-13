@@ -22,19 +22,19 @@
             <div class="card-body">
                 <form action="{{ route('admin.coupon.store') }}" enctype="multipart/form-data" method="post">
                     @csrf
-                        <div class="form-group ">
-                            <label for="">Tên Mã giảm<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="name">
-                        </div>
+                    <div class="form-group ">
+                        <label for="">Tên Mã giảm<span class="text-danger">(*)</span></label>
+                        <input type="text" class="form-control" name="name">
+                    </div>
                        
                     <div class="row">
                         <div class="form-group col-6">
                             <label for="">Mã giảm giá<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="name">
+                            <input type="text" class="form-control" name="code">
                         </div>
                         <div class="form-group col-6">
                             <label for="">Loại giảm giá<span class="text-danger">(*)</span></label>
-                            <select name="status" id="inputState" class="form-control">
+                            <select name="type" id="inputState" class="form-control">
                                 <option value="">----Chọn loại giảm----</option>
                                 <option value="1">Giảm theo tiền</option>
                                 <option value="0">Giảm theo phần trăm</option>
@@ -45,29 +45,29 @@
                     <div class="row">
                         <div class="form-group col-6">
                             <label for="">Ngày bắt đầu<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="name">
+                            <input type="text" class="form-control  datepicker" name="start_date">
                         </div>
                         <div class="form-group col-6">
                             <label for="">Ngày kết thúc<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="image">
+                            <input type="text" class="form-control  datepicker" name="end_date" value="{{ request()->start_date }}" >
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-3">
                             <label for="">Số lượng<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="name">
+                            <input type="number" class="form-control" name="value">
                         </div>
                         <div class="form-group col-3">
                             <label for="">Giá trị giảm<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="image">
+                            <input type="number" class="form-control" name="min_price">
                         </div>
                         <div class="form-group col-3">
-                            <label for="">Đơn tối hiểu<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="image">
+                            <label for="">Đơn tối hiểu</label>
+                            <input type="number" class="form-control" name="min_order">
                         </div>
                         <div class="form-group col-3">
-                            <label for="">Giảm tối đa<span class="text-danger">(*)</span></label>
-                            <input type="text" class="form-control" name="image">
+                            <label for="">Giảm tối đa</label>
+                            <input type="number" class="form-control" name="max_price">
                         </div>
                     </div>
                     
@@ -85,3 +85,7 @@
     </div>
   </section>
 @endsection
+
+@push('scripts')
+
+@endpush

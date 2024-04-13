@@ -28,17 +28,39 @@
                     @php
                         if($order->order_status == 0){
                             $text = 'Chờ xác nhận';
+                            $lido = '';
+
                         }else if($order->order_status == 1 && $order->shipper_status ==0){
                             $text = 'Chờ vận chuyển';
+                            $lido = '';
+
                         }else if($order->order_status == 2 && $order->shipper_status ==1){
                             $text = 'Đang giao hàng';
+                            $lido = '';
+
                         }else if($order->order_status == 3 ){
                             $text = 'Hoàn thành';
+                            $lido = '';
                         }else if($order->order_status == 4 ){
                             $text = 'Đã hủy';
+                            $lido = $order->reason_customer;
                         }
                     @endphp
+                    @if($order->order_status == 4)
+                        
+                    <div class="bv3eJE" >
+                        <span class="text-danger">
+                            {{ $text }} - <span style="
+                            color: grey;
+                            font-size: 14px;
+                            text-transform: capitalize;
+                        ">Lí do: {{ $lido }}
+                        </span>
+                    
+                    </div>
+                @else
                     <div class="bv3eJE" tabindex="0">{{ $text }}</div>
+                @endif
                     <div class="kG_yF0"></div>
                     @foreach ($orderDetail as $item)
                         @php
@@ -61,7 +83,12 @@
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <div class="rsautk" tabindex="0">Phân loại hàng: Xanh da trời,Massage + Sưởi ấm</div>
+                                                                @php
+
+                                                                    $color = \App\Models\Color::where('id', $item->color_id)->first();
+                                                                    
+                                                                @endphp
+                                                                <div class="rsautk" tabindex="0">Phân loại hàng: {{ $color->name }}</div>
                                                                 <div class="j3I_Nh" tabindex="0">x{{ $item->qty }}</div>
                                                             </div>
                                                         </div>
@@ -85,7 +112,7 @@
                     <div class="LwXnUQ">
                         <div class="NWUSQP">
                             <label class="juCcT0">Thành tiền:</label>
-                            <div class="t7TQaf" tabindex="0" aria-label="Thành tiền: ₫289.000">{{ number_format($order->amount, 0, ',', '.') }}&#8363;</div>
+                            <div class="t7TQaf"  >{{ number_format($order->amount, 0, ',', '.') }}&#8363;</div>
                         </div>
                     </div>
                     

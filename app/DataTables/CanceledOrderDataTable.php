@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\OrderTotal;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -74,7 +74,7 @@ class CanceledOrderDataTable extends DataTable
                     $button = '<span class="btn btn-success btn-sm">Hoàn thành <i class="fa fa-check"></i></span>';
                 }
                 else if($query->order_status == 4){
-                    $button = '<span class="btn btn-success btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
+                    $button = '<span class="btn btn-danger btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
                 }
                 
                 return $button;
@@ -88,9 +88,9 @@ class CanceledOrderDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Order $model): QueryBuilder
+    public function query(OrderTotal $model): QueryBuilder
     {
-        return $model::where('order_status' , 4)->newQuery();
+        return $model::where('order_status' , 4)->latest()->newQuery();
     }
 
     /**
@@ -142,6 +142,6 @@ class CanceledOrderDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Order_' . date('YmdHis');
+        return 'OrderTotal_' . date('YmdHis');
     }
 }

@@ -39,13 +39,12 @@
                                           <tr>
                                             <th scope="col">Màu Sắc</th>
                                             <th scope="col">Số Lượng</th>
+                                            <th scope="col">Lượt bán</th>
                                           </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($receiptProduct as $item)
+                                            @foreach ($productColor as $item)
                                             <tr>
-                                                
-                                                
                                                     <td> 
                                                         @php
                                                             $text = App\Models\Color::where('id', $item->color_id)->first();
@@ -55,6 +54,12 @@
                                                     </td>
                                                     <td>
                                                         {{ $item->quantity }}
+                                                    </td>
+
+                                                    
+
+                                                    <td>
+                                                        {{ $item->sale }}
                                                     </td>
                                                     
                                             
@@ -73,10 +78,6 @@
                                         <input type="text" class="form-control" value="{{ $product->name }}" disabled>
                                     </div>
                                     <div class="form-group col-3">
-                                        <label for="">Giá nhập</label>
-                                        <input type="text" class="form-control" value="" disabled>
-                                    </div>
-                                    <div class="form-group col-3">
                                         <label for="">Giá bán</label>
                                         <input type="text" class="form-control text-danger" value="{{number_format($product->offer_price, 0, ',', '.') }}&#8363;" disabled>
                                     </div>
@@ -93,7 +94,7 @@
                                     </div>
                                     <div class="form-group col-3">
                                         <label for="">Lượt bán</label>
-                                        <input type="text" class="form-control" value="" disabled>
+                                        <input type="text" class="form-control" value="{{ $product->sales }}" disabled>
                                     </div>
                                     <div class="form-group col-3">
                                         <label for="">Lượt xem</label>

@@ -5,7 +5,7 @@ namespace App\DataTables;
 use App\Models\Product;
 use App\Models\Brand;
 use App\Models\Category;
-use App\Models\ReceiptProduct;
+use App\Models\ColorDetail;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -36,9 +36,11 @@ class ProductDataTable extends DataTable
             })
             ->addColumn('qty', function($query){
                 $product = "<span>";
-                $receiptDetail = ReceiptProduct::where('product_id', $query->id)->sum('quantity');
-                if($receiptDetail){
-                    $product = $receiptDetail;
+                // $receiptDetail = ReceiptProduct::where('product_id', $query->id)->sum('quantity');
+                $colorProduct = ColorDetail::where('product_id', $query->id)->sum('quantity');
+                $sale = ColorDetail::where('product_id', $query->id)->sum('sale');
+                if($colorProduct){
+                    $product = $colorProduct - $sale;
                 }else{
                     $product = 0;
                 }

@@ -16,10 +16,10 @@ return new class extends Migration
             $table->text('name')->nullable();
             $table->text('code')->nullable();
             $table->integer('type')->nullable();
-            $table->integer('value')->nullable();
-            $table->integer('min_price')->nullable();
-            $table->integer('min_order')->nullable();
-            $table->integer('max_price')->nullable();
+            $table->integer('value')->nullable(); //số lượng mã
+            $table->integer('min_price')->nullable(); // giá trị mã giảm giá
+            $table->integer('min_order')->nullable();// đơn tối hiểu
+            $table->integer('max_price')->nullable();//giảm tối đa
             $table->integer('check_use')->default(0);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

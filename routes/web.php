@@ -24,6 +24,7 @@ use App\Http\Controllers\Backend\OrderController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\CouponController;
 use App\Http\Controllers\Backend\ShipperController;
+use App\Http\Controllers\Backend\StatisticsController;
 
 
 
@@ -80,7 +81,10 @@ Route::get('cart-products', [CartController::class, 'getCartProducts'])->name('c
 Route::get('product-total', [CartController::class, 'cartTotal'])->name('cart.product-total'); 
 Route::get('get-product/{id}', [CartController::class, 'getProduct'])->name('get-product'); 
 
+
+
 Route::get('apply-coupon', [CartController::class, 'applyCoupon'])->name('apply-coupon'); 
+Route::get('coupon-calculation', [CartController::class, 'couponCalculation'])->name('coupon-calculation'); 
 
 
 Route::middleware(['web', 'permission:product']) 
@@ -125,6 +129,8 @@ Route::middleware(['web', 'permission:receipt'])
      /**End Profile Route */
     /** Start Receipt Detail Route */
     Route::delete('receipt-detail-delete-all', [ReceiptDetailController::class, 'deleteAll'])->name('receipt-detail-delete-all');
+    Route::get('receipt-details-html', [ReceiptDetailController::class, 'getAllReceiptDetailsAsHtml'])->name('receipt.details-html');
+    Route::get('receipt/get-updated-values',[ReceiptDetailController::class, 'getUpdatedValues'])->name('receipt.get-updated-values');
     Route::resource('receipt-detail', ReceiptDetailController::class);
 
     /** End Receipt Detail Route */
@@ -196,6 +202,13 @@ Route::middleware(['web',  'superadmin'])
     Route::resource('role', RoleController::class); 
 
     Route::resource('coupon', CouponController::class); 
+
+
+    Route::post('dashboard/filter-by-date', [StatisticsController::class, 'filterByDate'])->name('dashboard.filter-by-date');
+    Route::post('dashboard/filter-by-60date', [StatisticsController::class, 'filterBy60Date'])->name('dashboard.filter-by-60-date');
+    Route::post('dashboard/filter', [StatisticsController::class, 'filter'])->name('dashboard.filter');
+    Route::post('dashboard/total-order', [StatisticsController::class, 'totalOrder'])->name('dashboard.total-order');
+
 });
 
 
@@ -208,6 +221,7 @@ Route::middleware(['web',  'shipper'])
     Route::put('change-status/{id}', [ShipperController::class, 'changeStatus1'])->name('chang-status');
     Route::put('change-status-2/{id}', [ShipperController::class, 'changeStatus2'])->name('chang-status-2');
     Route::put('shipper-change-status', [ShipperController::class, 'changeStatus'])->name('change-status-3');
+    Route::put('shipper-change-status-cancel', [ShipperController::class, 'changeStatusCancel'])->name('change-status-cancel');
 
     Route::resource('shipper', ShipperController::class); 
 });
@@ -230,6 +244,12 @@ Route::middleware(['web', 'user'])
     Route::get('shipping', [UserOrderController::class, 'indexShipping'])->name('orders.shipping');
     Route::get('completed', [UserOrderController::class, 'indexCompleted'])->name('orders.completed');
     Route::get('canceled', [UserOrderController::class, 'indexCanceled'])->name('orders.canceled');
+    Route::post('order/change-status-cancel', [UserOrderController::class, 'cancelOrder'])->name('orders.chang-status-cancel');
+
+
+    Route::post('order/product-review', [UserOrderController::class, 'productReview'])->name('orders.product-review');
+    Route::post('order/order-review', [UserOrderController::class, 'orderReview'])->name('orders.order-review');
+
 
     // Route::get('search', [UserOrderController::class, 'search'])->name('order.index');
 

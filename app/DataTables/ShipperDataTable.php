@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\OrderTotal;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -27,7 +27,12 @@ class ShipperDataTable extends DataTable
                 if($query->shipper_status == 0){
                     $viewBtn = "<a href='".route('shipper.shipper.show',  $query->id)."' >Xem đơn</a>";
                     return $viewBtn;
-                }else if($query->order_status == 2){
+                }else if($query->shipper_status == 2){
+                    $viewBtn = "<a href='".route('shipper.shipper.show',  $query->id)."' class='status-btn btn btn-info mr-2 mb-2'><i class='far fa-eye '></i></a>";
+                    return $viewBtn;
+                }
+                
+                else if($query->order_status == 2){
                     $viewBtn = "<a href='".route('shipper.shipper.show',  $query->id)."' class='status-btn btn btn-info mr-2 mb-2'><i class='far fa-eye '></i></a>";
                     $editBtn = "<button data-id='".$query->id."' class='status-btn btn btn-success  mr-2 change-status  mb-2'><i class='bx bx-check-circle '></i></button>";
     
@@ -47,7 +52,7 @@ class ShipperDataTable extends DataTable
                 
             
                 
-                // Trả về HTML hiển thị các trường trên các dòng riêng biệt
+                
                 return "<b>$address->name</b><div>$address->phone</div><div>$address->address, $ward->name, $district->name, $city->name</div>";
             })
             // ->addColumn('date', function($query){
@@ -86,7 +91,7 @@ class ShipperDataTable extends DataTable
             ->addColumn('order_status',  function($query) {
                 if($query->order_status == 0){
                     $button = '<span class="btn btn-info btn-sm">Chờ duyệt <i class="fas fa-clock"></i> </span>';
-                }else if($query->order_status == 1){
+                }else if($query->order_status == 1  && $query->shipper_status == 0){
                     $button = '<span class="btn btn-primary btn-sm">Chờ vận chuyển <i class="fas fa-hourglass-half"></i></span>';
                 }else if($query->order_status == 2){
                     $button = '<span class="btn btn-warning btn-sm" >Đang giao hàng <i class="fas fa-truck"></i></span>';
@@ -96,6 +101,8 @@ class ShipperDataTable extends DataTable
                 }
                 else if($query->order_status == 4){
                     $button = '<span class="btn btn-success btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
+                }else if($query->order_status == 1 && $query->shipper_status == 2){
+                    $button = '<span class="btn btn-dark btn-sm">Từ chối <i class="bx bx-x-circle"></i></span>';
                 }
                 
                 return $button;
@@ -109,9 +116,9 @@ class ShipperDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Order $model): QueryBuilder
+    public function query(OrderTotal $model): QueryBuilder
     {
-        return $model::where('shipper_id', Auth::guard('shipper')->user()->id)->orderBy('order_status', 'asc')->newQuery();
+        return $model::where('shipper_id', Auth::guard('shipper')->user()->id)->orderBy('order_status', 'asc')->latest()->newQuery();
     }
 
     /**
@@ -162,6 +169,6 @@ class ShipperDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Order_' . date('YmdHis');
+        return 'OrderTotal_' . date('YmdHis');
     }
 }

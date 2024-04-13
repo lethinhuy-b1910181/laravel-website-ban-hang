@@ -136,7 +136,7 @@
         <div class="container">
             <div class="wsus__details_bg">
                 <div class="row">
-                    <div class="col-xl-4 col-md-5 col-lg-5">
+                    <div class="col-xl-5 col-md-6 col-lg-6">
                         <div id="sticky_pro_zoom">
                             <div class="exzoom hidden" id="exzoom">
                                 <div class="exzoom_img_box">
@@ -168,107 +168,174 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-5 col-md-7 col-lg-7">
+                    <div class="col-xl-7 col-md-7 col-lg-7">
                         <div class="wsus__pro_details_text">
                             <a class="title" href="#">{{ $product->name }}</a>
-                            <p class="wsus__stock_area">Tình trạng: Còn <b>{{ $sl  }}</b> hàng trong kho </p>
-                            <h4>{{ number_format($product->offer_price, 0, ',', '.') }}&#8363;</h4>
+                            <p class="wsus__stock_area" id="stock_area">Tình trạng: Còn <b id="stock_quantity">{{ $sl }}</b> hàng trong kho </p>
+                            <h4 id="offer_price">{{ number_format($product->offer_price, 0, ',', '.') }}₫</h4>
                        
                             <p class="review">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>20 review</span>
+                            
+                                    
+                                        
+                                        @php
+                                            $colorStar = \App\Models\ProductReview::where( 'product_id', $product->id)->count();
+                                            $star = \App\Models\ProductReview::where( 'product_id', $product->id)->avg('star');
+        
+                                            
+                                            // Lấy trung bình cộng của đánh giá
+    $average_star = \App\Models\ProductReview::where('product_id', $product->id)->avg('star');
+    
+    // Tạo một biến để lưu trữ số sao nguyên
+    $full_stars = floor($average_star);
+    
+    // Kiểm tra xem trung bình có phần thập phân không
+    $has_half_star = $average_star - $full_stars > 0;
+                                        @endphp
+                                            @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= $full_stars)
+                                                {{-- Tô màu sao đầy --}}
+                                                @php $colorIcon = 'color:#ffcc00;'; @endphp
+                                                <i class="fas fa-star" style="{{ $colorIcon }}"></i>
+                                            @elseif ($has_half_star && $i == $full_stars + 1)
+                                                {{-- Tô màu sao bán chấp nhận được --}}
+                                                @php $colorIcon = 'color:#ffcc00;'; @endphp
+                                                <i class="fas fa-star-half" style="{{ $colorIcon }}"></i>
+                                            @else
+                                                {{-- Tô màu sao rỗng --}}
+                                                @php $colorIcon = 'color:#ccc;'; @endphp
+                                                <i class="far fa-star" style="{{ $colorIcon }}"></i>
+                                            @endif
+                                        @endfor
+                                 
+                                    <span>{{ $colorStar }} Đánh giá</span>
                             </p>
                            <p class="description">{!! $product->short_description !!}</p>
+                           <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
+                            <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
+                            <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
+                            
                             <form class="shopping-cart-form">
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            
-                                {{-- <div class="wsus__selectbox">
-                                    <div class="row">
-                                        <div class="col-xl-6 col-sm-6">
-                                            <h5 class="mb-2">Chọn màu: </h5>
-                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                @php
+                                    $colors= App\Models\ColorDetail::where('product_id', $product->id)->get();
+                                @endphp
+                                @if ($colors != NULL)
+                                <p style="padding-bottom: 5px; font-weight: 600">Chọn màu để xem giá:</p>
+                                <div class="box-content">
+                                    <ul class="list-variants" id="color-list">
+                                        @if($colors->count() > 1)
+                                        @foreach ($colors as $color)
+                                        @php
+                                            $min_price_product = App\Models\ReceiptProduct::where(['product_id' => $product->id])->min('price');
+                                            $receiptPrice = App\Models\ReceiptProduct::where(['product_id' => $product->id, 'color_id' => $color->color_id])->max('price');
+                                            if($receiptPrice == NULL){
+                                                $receiptPrice = 0;
+                                            }
 
-                                            <select class="select_2" name="colors_item[]">
-                                                @foreach ($product->colors as $color)
-                                                    <option value="{{ $color->id }}" >{{ $color->name }}</option>
-                                                
-                                                @endforeach
+                                            if($min_price_product == NULL){
+                                                $min_price_product = 0;
+                                            }
+
+                                            $temp = $receiptPrice - $min_price_product;
+                                            if($receiptPrice > $min_price_product)
+                                            {
+                                                if($product->offer_price + $temp  == $product->offer_price){
+                                                    $t = 'active';
+
+                                                }else $t = '';
+                                            }else $t ='';
                                             
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div> --}}
+                                            if($color->quantity - $color->sale == 0){
+                                                $d = 'disable';
+                                            }else $d = '';
+
+                                            $quantity = $color->quantity - $color->sale;
+
+                                        @endphp
+                                        <li class="item-variant {{ $t }} {{ $d }}" data-temp="{{ $temp }}" data-quantity="{{ $quantity }}">
+                                            <input type="hidden" class="color-item" data-id="{{ $color->color_id }}"  >
+                                            <div class="is-flex is-flex-direction-column">
+                                                <strong class="item-variant-name">{{ $color->color->name}}</strong>
+                                                <span >{{ number_format($product->offer_price + $temp , 0, ',', '.') }}₫</span>
+                                            </div>
+                                        </li>
+                                        
+                                        @endforeach
+
+                                        @else
+                                        @foreach ($colors as $color)
+                                        @php
+                                            $min_price_product = App\Models\ReceiptProduct::where(['product_id' => $product->id])->min('price');
+                                            $receiptPrice = App\Models\ReceiptProduct::where(['product_id' => $product->id, 'color_id' => $color->color_id])->max('price');
+                                            if($receiptPrice == NULL){
+                                                $receiptPrice = 0;
+                                            }
+
+                                            if($min_price_product == NULL){
+                                                $min_price_product = 0;
+                                            }
+
+                                            $temp = $receiptPrice - $min_price_product;
+                                            if($receiptPrice > $min_price_product)
+                                            {
+                                                if($product->offer_price + $temp  == $product->offer_price){
+                                                    $t = 'active';
+
+                                                }else $t = '';
+                                            }else $t ='';
+                                            
+                                            if($color->quantity - $color->sale == 0){
+                                                $d = 'disable';
+                                            }else $d = '';
+
+                                            $quantity = $color->quantity - $color->sale;
+
+                                        @endphp
+                                        <li class="item-variant {{ $t }} {{ $d }}" data-temp="0" data-quantity="{{ $quantity }}">
+                                            <input type="hidden" class="color-item" data-id="{{ $color->color_id }}"  >
+                                            <div class="is-flex is-flex-direction-column">
+                                                <strong class="item-variant-name">{{ $color->color->name}}</strong>
+                                                <span>{{ number_format($product->offer_price , 0, ',', '.') }}₫</span>
+                                                
+                                            </div>
+                                        </li>
+                                        @endforeach
+                                        @endif
+                                        
+                                    </ul>
+                                </div>
+                                    
+                                @endif
                                 @if ($sl == 0)
                                 
                                     <h5 class="text-danger">Sản Phẩm Tạm Hết Hàng</h5>
                                     <input class="" type="hidden" name="qty"  value="0" />
-                                    
+
                                 
                                 @else
-                                <div class="wsus__quentity">
-                                    <h5>Số lượng :</h5>
-                                    <div class="select_number">
-                                        <input class="number_area" type="text" name="qty" min="1" max="{{ $sl }}" value="1" />
-                                    </div>
-                                </div>
-                                @endif
-                                
+                                {{-- <div class="wsus__quentity"> --}}
+                                    {{-- <h5>Số lượng :</h5> --}}
+                                    {{-- <div class="select_number"> --}}
+                                        <input class="" type="hidden" name="qty" id="quantity_input" min="1" max="{{ $sl }}" value="1" />
+                                    {{-- </div> --}}
+                                {{-- </div> --}}
+                                <input type="hidden" name="color_id" id="color_id" value="">
                                 <ul class="wsus__button_area">
-                                    <li><button type="submit" class="add_cart" href="#" >Thêm giỏ hàng</button></li>
-                                    <li><a class="buy_now" href="#">Mua ngay</a></li>
+                                    <li><button type="submit" class="add_cart "  href="#" >Thêm giỏ hàng</button></li>
+                                    {{-- <li><a class="buy_now" href="#">Mua ngay</a></li> --}}
+                                    
+                                    <li><a href="#"></a></li>
                                     <li><a href="#"><i class="fal fa-heart"></i></a></li>
-                                    <li><a href="#"><i class="far fa-random"></i></a></li>
                                 </ul>
+                                @endif
+                                <input type="hidden" name="product_price" value="">
                             </form>
-                            <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
-                            <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
-                            <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
-                            <div class="wsus__pro_det_share">
-                                <h5>Chia sẽ :</h5>
-                                <ul class="d-flex">
-                                    <li><a class="facebook" href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a class="twitter" href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a class="whatsapp" href="#"><i class="fab fa-whatsapp"></i></a></li>
-                                    <li><a class="instagram" href="#"><i class="fab fa-instagram"></i></a></li>
-                                </ul>
-                            </div>
-                            <a class="wsus__pro_report" href="#" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal"><i class="fal fa-comment-alt-smile"></i> Report incorrect
-                                product information.</a>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-12 mt-md-5 mt-lg-0">
-                        <div class="wsus_pro_det_sidebar" id="sticky_sidebar">
-                            <ul>
-                                <li>
-                                    <span><i class="fal fa-truck"></i></span>
-                                    <div class="text">
-                                        <h4>Hoàn trả miễn phí</h4>
-                                       
-                                    </div>
-                                </li>
-                                <li>
-                                    <span><i class="far fa-shield-check"></i></span>
-                                    <div class="text">
-                                        <h4>Thanh toán bảo mật</h4>
-                                       
-                                    </div>
-                                </li>
-                                <li>
-                                    <span><i class="fal fa-envelope-open-dollar"></i></span>
-                                    <div class="text">
-                                        <h4>Chính sách bảo hành</h4>
-                                        
-                                    </div>
-                                </li>
-                            </ul>
+                            
                             
                         </div>
                     </div>
+                    
                 </div>
             </div>
 
@@ -276,15 +343,18 @@
                 <div class="col-xl-12">
                     <div class="wsus__pro_det_description">
                         <div class="wsus__details_bg">
-                            <ul class="nav nav-pills mb-3" id="pills-tab3" role="tablist">
+                            <ul class="nav nav-pills mb-3" id="pills-tab3" role="tablist" style="
+                            display: flex;
+                            justify-content: center;
+                        ">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="pills-home-tab7" data-bs-toggle="pill"
+                                    <button class="nav-link active " id="pills-home-tab7" data-bs-toggle="pill"
                                         data-bs-target="#pills-home22" type="button" role="tab"
                                         aria-controls="pills-home" aria-selected="true">Chi tiết sản phẩm</button>
                                 </li>
                             
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="pills-contact-tab2" data-bs-toggle="pill"
+                                    <button class="nav-link " id="pills-contact-tab2" data-bs-toggle="pill"
                                         data-bs-target="#pills-contact2" type="button" role="tab"
                                         aria-controls="pills-contact2" aria-selected="false">Đánh giá</button>
                                 </li>
@@ -292,7 +362,7 @@
                                
                             </ul>
                             <div class="tab-content" id="pills-tabContent4">
-                                <div class="tab-pane fade  show active " id="pills-home22" role="tabpanel"
+                                <div class="tab-pane fade show active  " id="pills-home22" role="tabpanel"
                                     aria-labelledby="pills-home-tab7">
                                     <div class="row">
                                         <div class="col-xl-12">
@@ -323,177 +393,184 @@
                                     </div>
                                 </div>
                                
-                                {{-- <div class="tab-pane fade" id="pills-contact2" role="tabpanel"
+                                <div class="tab-pane fade " id="pills-contact2" role="tabpanel"
                                     aria-labelledby="pills-contact-tab2">
                                     <div class="wsus__pro_det_review">
                                         <div class="wsus__pro_det_review_single">
-                                            <div class="row">
-                                                <div class="col-xl-8 col-lg-7">
-                                                    <div class="wsus__comment_area">
-                                                        <h4>Reviews <span>02</span></h4>
-                                                        <div class="wsus__main_comment">
-                                                            <div class="wsus__comment_img">
-                                                                <img src="images/client_img_3.jpg" alt="user"
-                                                                    class="img-fluid w-100">
-                                                            </div>
-                                                            <div class="wsus__comment_text reply">
-                                                                <h6>Shopnil mahadi <span>4 <i
-                                                                            class="fas fa-star"></i></span></h6>
-                                                                <span>09 Jul 2021</span>
-                                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing
-                                                                    elit.
-                                                                    Cupiditate sint molestiae eos? Officia, fuga eaque.
-                                                                </p>
-                                                                <ul class="">
-                                                                    <li><img src="images/headphone_1.jpg" alt="product"
-                                                                            class="img-fluid w-100"></li>
-                                                                    <li><img src="images/headphone_2.jpg" alt="product"
-                                                                            class="img-fluid w-100"></li>
-                                                                    <li><img src="images/kids_1.jpg" alt="product"
-                                                                            class="img-fluid w-100"></li>
-                                                                </ul>
-                                                                <a href="#" data-bs-toggle="collapse"
-                                                                    data-bs-target="#flush-collapsetwo">reply</a>
-                                                                <div class="accordion accordion-flush"
-                                                                    id="accordionFlushExample2">
-                                                                    <div class="accordion-item">
-                                                                        <div id="flush-collapsetwo"
-                                                                            class="accordion-collapse collapse"
-                                                                            aria-labelledby="flush-collapsetwo"
-                                                                            data-bs-parent="#accordionFlushExample">
-                                                                            <div class="accordion-body">
-                                                                                <form>
-                                                                                    <div
-                                                                                        class="wsus__riv_edit_single text_area">
-                                                                                        <i class="far fa-edit"></i>
-                                                                                        <textarea cols="3" rows="1"
-                                                                                            placeholder="Your Text"></textarea>
-                                                                                    </div>
-                                                                                    <button type="submit"
-                                                                                        class="common_btn">submit</button>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="wsus__main_comment">
-                                                            <div class="wsus__comment_img">
-                                                                <img src="images/client_img_1.jpg" alt="user"
-                                                                    class="img-fluid w-100">
-                                                            </div>
-                                                            <div class="wsus__comment_text reply">
-                                                                <h6>Smith jhon <span>5 <i
-                                                                            class="fas fa-star"></i></span>
-                                                                </h6>
-                                                                <span>09 Jul 2021</span>
-                                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing
-                                                                    elit.
-                                                                    Cupiditate sint molestiae eos? Officia, fuga eaque.
-                                                                </p>
-                                                                <a href="#" data-bs-toggle="collapse"
-                                                                    data-bs-target="#flush-collapsetwo2">reply</a>
-                                                                <div class="accordion accordion-flush"
-                                                                    id="accordionFlushExample2">
-                                                                    <div class="accordion-item">
-                                                                        <div id="flush-collapsetwo2"
-                                                                            class="accordion-collapse collapse"
-                                                                            aria-labelledby="flush-collapsetwo"
-                                                                            data-bs-parent="#accordionFlushExample">
-                                                                            <div class="accordion-body">
-                                                                                <form>
-                                                                                    <div
-                                                                                        class="wsus__riv_edit_single text_area">
-                                                                                        <i class="far fa-edit"></i>
-                                                                                        <textarea cols="3" rows="1"
-                                                                                            placeholder="Your Text"></textarea>
-                                                                                    </div>
-                                                                                    <button type="submit"
-                                                                                        class="common_btn">submit</button>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div id="pagination">
-                                                            <nav aria-label="Page navigation example">
-                                                                <ul class="pagination">
-                                                                    <li class="page-item">
-                                                                        <a class="page-link" href="#"
-                                                                            aria-label="Previous">
-                                                                            <i class="fas fa-chevron-left"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="page-item"><a
-                                                                            class="page-link page_active" href="#">1</a>
-                                                                    </li>
-                                                                    <li class="page-item"><a class="page-link"
-                                                                            href="#">2</a></li>
-                                                                    <li class="page-item"><a class="page-link"
-                                                                            href="#">3</a></li>
-                                                                    <li class="page-item"><a class="page-link"
-                                                                            href="#">4</a></li>
-                                                                    <li class="page-item">
-                                                                        <a class="page-link" href="#" aria-label="Next">
-                                                                            <i class="fas fa-chevron-right"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </nav>
-                                                        </div>
-                                                    </div>
+                                            
+                                            @if ($reviews->count() > 0)
+                                            {{-- <div class="row " style="
+                                            height: 50px;
+                                            margin: 20px;
+                                            background-color: rgb(255, 251, 248);
+                                            border: 1px solid rgb(249, 237, 229);
+                                        ">
+                                                <div class="col-3">
+                                                    <div class="">{{ $total_star }} trên 5</div>
                                                 </div>
-                                                <div class="col-xl-4 col-lg-5 mt-4 mt-lg-0">
-                                                    <div class="wsus__post_comment rev_mar" id="sticky_sidebar3">
-                                                        <h4>write a Review</h4>
-                                                        <form action="#">
-                                                            <p class="rating">
-                                                                <span>select your rating : </span>
-                                                                <i class="fas fa-star"></i>
-                                                                <i class="fas fa-star"></i>
-                                                                <i class="fas fa-star"></i>
-                                                                <i class="fas fa-star"></i>
-                                                                <i class="fas fa-star"></i>
-                                                            </p>
-                                                            <div class="row">
-                                                                <div class="col-xl-12">
-                                                                    <div class="wsus__single_com">
-                                                                        <input type="text" placeholder="Name">
+                                                <div class="col-9"></div>
+                                            </div> --}}
+                                                @foreach ($reviews as $item)
+                                                     @php
+                                                        $user = \App\Models\Customer::where('id', $item->user_id)->first();
+                                                    @endphp
+                                                    <div class="row" style="
+                                                    margin: 10px 20px;background: aliceblue;box-shadow: rgb(50 50 93 / 15%) 0px 0px 5px 0px;
+                                                    ">
+                                                        <div class="col-xl-12 col-lg-12">
+                                                            <div class="row " style="
+                                                                padding: 10px;
+                                                            ">
+                                                                <div class="col-1">
+                                                                    <img style="
+                                                                    width: 60px !important;
+                                                                    height: 60px !important;
+                                                                    margin-top: 8px !important;
+                                                                " src="{{ $user->image ? asset( $user->image) : asset('uploads/default.png') }}"> </img>
+                                                                </div>
+                                                                <div class="col-11">
+                                                                    <div class="">
+                                                                    <span style="font-size: 14px; color: black;">{{ $user->name }}</span>
+                                                                        
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-xl-12">
-                                                                    <div class="wsus__single_com">
-                                                                        <input type="email" placeholder="Email">
+                                                                    <div >
+                                                                        <ul class="list-inline" style="
+                                                                        display: flex;
+                                                                        align-items: center;
+                                                                        font-size: .875rem;
+                                                                        ">
+                                                                        
+                                                                        <br>
+                                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                            
+                                                                            @php
+
+                                                                                if($item){
+                                                                                        $orderRating = $item->star;
+                                                                                    
+                                                                                        
+                                                                                        switch($orderRating) {
+                                                                                        case 1:
+                                                                                            $orderRatingtext = 'Tệ';
+                                                                                            $orderRatingtextColor = 'color:#ccc;';
+                                                                                            break;
+                                                                                        case 2:
+                                                                                            $orderRatingtext = 'Không hài lòng';
+                                                                                            $orderRatingtextColor = 'color:#ccc;';
+                                                                                            break;
+                                                                                        case 3:
+                                                                                            $orderRatingtext = 'Bình thường';
+                                                                                            $orderRatingtextColor = 'color:#ccc;';
+                                                                                            break;
+                                                                                        case 4:
+                                                                                            $orderRatingtext = 'Hài lòng';
+                                                                                            $orderRatingtextColor = 'color:#ffcc00;';
+                                                                                            break;
+                                                                                        case 5:
+                                                                                            $orderRatingtext = 'Tuyệt vời';
+                                                                                            $orderRatingtextColor = 'color:#ffcc00;';
+                                                                                            break;
+                                                                                    }
+                                                                                    }else {
+                                                                                        
+                                                                                        $orderRatingtext = 'Tuyệt vời';
+                                                                                        $orderRatingtextColor = 'color:#ffcc00;';
+                                                                                        
+                                                                                    }
+                                                                                if($item){
+                                                                                    if($i <= $item->star){
+                                                                                        $colorIcon = 'color:#ffcc00;';
+                                                                                    }else{
+                                                                                        $colorIcon = 'color:#ccc;';
+
+                                                                                    }
+                                                                                }else $colorIcon = 'color:#000;';
+                                                                            @endphp
+                                                                                <li  style="display: inline-block;cursor: pointer; font-size:16px; {{ $colorIcon }}">&#9733;</li>
+                                                                                
+                                                                            @endfor
+                                                                            <span id="ratingText" style="
+                                                                            padding-left: 10px;
+                                                                            font-size: .875rem;
+                                                                            {{  $orderRatingtextColor }}
+                                                                            font-weight:600;
+                                                                        ">{{ $orderRatingtext }}</span>
+
+                                                                        </ul>
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-xl-12">
-                                                                    <div class="col-xl-12">
-                                                                        <div class="wsus__single_com">
-                                                                            <textarea cols="3" rows="3"
-                                                                                placeholder="Write your review"></textarea>
-                                                                        </div>
+                                                                    @php
+                                                                        if ($item) {
+                                                                            $formattedDate = $item->created_at->setTimezone('Asia/Ho_Chi_Minh')->format('H:i:s d-m-Y');
+                                                                        } else {
+                                                                            $formattedDate = null; 
+                                                                        }
+                                                                        if($item->review != ''){
+                                                                            $dn = '';
+                                                                            $t = $item->review;
+                                                                        } 
+                                                                        else{
+                                                                            $dn = 'd-none';
+                                                                            $t = '';
+                                                                        } 
+                                                                    @endphp
+                                                                    <div class="{{ $dn }}">
+                                                                        <div ><span style="
+                                                                            font-size: .875rem;
+                                                                        ">{{ $formattedDate }} </span><span style="font-size: 14px; ">| Phân loại hàng: {{ $item->color->name }}</span></div>
+                                                                        <span style="
+                                                                        padding-right: 15px;
+                                                                        color: #ccc;
+                                                                        font-size: .875rem;
+                                                                        
+                                                                    ">Chất lượng sản phẩm: <span style="color: #000; font-size: .875rem;">{{ $t }}</span></span>
                                                                     </div>
+
+                                                                    <div class="">
+                                                                    
+                                                                        
+                                                                    </div>
+                                                                    
                                                                 </div>
-                                                            </div>
-                                                            <div class="img_upload">
-                                                                <div class="gallery">
-                                                                    <a class="cam" href="javascript:void(0)"><span><i
-                                                                                class="fas fa-image"></i></span>
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                            <button class="common_btn" type="submit">submit
-                                                                review</button>
-                                                        </form>
+                                                            </div> 
+                                                        </div>
+                                                        
                                                     </div>
+                                                @endforeach
+
+                                                <div id="pagination">
+                                                    <nav aria-label="Page navigation example">
+                                                        <ul class="pagination">
+                                                            <li class="page-item">
+                                                                <a class="page-link" href="#"
+                                                                    aria-label="Previous">
+                                                                    <i class="fas fa-chevron-left"></i>
+                                                                </a>
+                                                            </li>
+                                                            <li class="page-item"><a
+                                                                    class="page-link page_active" href="#">1</a>
+                                                            </li>
+                                                            <li class="page-item"><a class="page-link"
+                                                                    href="#">2</a></li>
+                                                            <li class="page-item"><a class="page-link"
+                                                                    href="#">3</a></li>
+                                                            <li class="page-item"><a class="page-link"
+                                                                    href="#">4</a></li>
+                                                            <li class="page-item">
+                                                                <a class="page-link" href="#" aria-label="Next">
+                                                                    <i class="fas fa-chevron-right"></i>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </nav>
                                                 </div>
-                                            </div>
+                                        
+                                                                
+                                            @else
+                                                <div class="">Chưa có đánh giá nào</div>
+                                            @endif
                                         </div>
                                     </div>
-                                </div> --}}
+                                </div>
                                
                               
                             </div>
@@ -690,6 +767,11 @@
 
             $('.shopping-cart-form').on('submit', function(e){
                 e.preventDefault();
+
+                if ($('.item-variant.active').length === 0) {
+                    toastr.error('Vui lòng chọn màu sắc sản phẩm!');
+                    return; 
+                }
                 let formData = $(this).serialize();
                 console.log(formData);
                 $.ajax({
@@ -724,37 +806,50 @@
                     },
                 });
             }
-            // function fetchSidebarCartProducts(){
-            //     $.ajax({
-            //         method: 'GET',
-            //         url: "{{ route('cart.cart-product') }}",
-            //         success: function(data){
-            //             console.log(data);
-            //             $('.mini_cart_wrapper').html("");
-            //             var html = '';
-            //             for(let item in data){
-            //                 html+=`
-            //                 <li>
-                               
-            //                     <div class="wsus__cart_img">
-            //                         <a href=""><img src="" alt="product" class="img-fluid w-100"></a>
-            //                         <a class="wsis__del_icon remove_sidebar_product" data-rowId="" href="#" ><i class="fas fa-minus-circle"></i></a>
-            //                     </div>
-            //                     <div class="wsus__cart_text">
-            //                         <a class="wsus__cart_title" href=""> </a>
-            //                         <p>0  </p>
-            //                     </div>
-            //                 </li>
-            //                 `;
+        });
 
-            //                 $('.mini_cart_wrapper').html(html);
-            //             }
-            //         },
-            //         error: function(data){
+        $(document).ready(function() {
+          
+            var colorList = document.getElementById("color-list");
 
-            //         },
-            //     });
-            // }
+            if (colorList) {
+             
+                var colorItems = colorList.querySelectorAll(".item-variant");
+
+                
+                colorItems.forEach(function(item) {
+                    item.addEventListener("click", function() {
+                       
+                        colorItems.forEach(function(item) {
+                            item.classList.remove("active");
+                        });
+                       
+                        this.classList.add("active");
+                        var colorId = this.querySelector('.color-item').getAttribute('data-id');
+                       
+                        document.getElementById('color_id').value = colorId;
+
+                        var temp = parseFloat(this.getAttribute('data-temp'));
+
+                       
+                        var offerPrice = parseFloat("{{ $product->offer_price }}") + temp;
+                        $('input[name="product_price"]').val(offerPrice);
+
+
+                     
+                        document.getElementById('offer_price').innerHTML = offerPrice.toLocaleString('vi-VN') + '₫';
+
+                        
+                     
+                        var quantity = parseInt(this.getAttribute('data-quantity'));
+                        document.getElementById('stock_quantity').innerText = quantity;
+                        
+
+                        document.getElementById('quantity_input').setAttribute('max', quantity);
+                       
+                    });
+                });
+            }
         });
     </script>
 @endpush
