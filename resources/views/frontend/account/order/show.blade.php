@@ -1,6 +1,6 @@
 @php
     $address = json_decode($order->order_address);
-    $email = \App\Models\User::where('id', $address->user_id)->first();
+    $email = \App\Models\Customer::where('id', $address->user_id)->first();
 
     $city = \App\Models\City::where('id', $address->city_id)->first();
     $district = \App\Models\District::where('id', $address->district_id)->first();
@@ -49,6 +49,11 @@
                                     $icon = 'fa fa-check';
                                 }else if($order->order_status == 4){
                                     $t = 'Đã hủy';
+                                    $tl = ' btn btn-sm btn-danger';
+                                    $icon = 'bx bx-x-circle';
+                                    
+                                }else if($order->order_status == 5){
+                                    $t = 'Giao hàng không thành công';
                                     $tl = ' btn btn-sm btn-danger';
                                     $icon = 'bx bx-x-circle';
                                     

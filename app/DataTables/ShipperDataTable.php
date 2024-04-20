@@ -42,6 +42,10 @@ class ShipperDataTable extends DataTable
                     $viewBtn = "<a href='".route('shipper.shipper.show',  $query->id)."' class='status-btn btn btn-info mr-2 mb-2'><i class='far fa-eye '></i></a>";
                     return $viewBtn;
                 }
+                else if($query->order_status == 5){
+                    $viewBtn = "<a href='".route('shipper.shipper.show',  $query->id)."' class='status-btn btn btn-info mr-2 mb-2'><i class='far fa-eye '></i></a>";
+                    return $viewBtn;
+                }
                 
             })
             ->addColumn('user_id', function($query){
@@ -100,8 +104,12 @@ class ShipperDataTable extends DataTable
                     $button = '<span class="btn btn-success btn-sm">Hoàn thành <i class="fa fa-check"></i></span>';
                 }
                 else if($query->order_status == 4){
-                    $button = '<span class="btn btn-success btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
-                }else if($query->order_status == 1 && $query->shipper_status == 2){
+                    $button = '<span class="btn btn-dangerdanger btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
+                }
+                else if($query->order_status == 5){
+                    $button = '<span class="btn btn-danger btn-sm">Không hoàn thành<i class="bx bx-x-circle"></i></span>';
+                }
+                else if($query->order_status == 1 && $query->shipper_status == 2){
                     $button = '<span class="btn btn-dark btn-sm">Từ chối <i class="bx bx-x-circle"></i></span>';
                 }
                 

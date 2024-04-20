@@ -34,12 +34,13 @@
                             <div class="header">
                                 <span><b>Tổng số lượng:</b>  Còn <b >{{ $sl }}</b> hàng trong kho.</span>
                                 <div class="sub-header">
-                                    <table class="table col-5">
+                                    <table class="table col-10 table-bordered">
                                         <thead>
                                           <tr>
                                             <th scope="col">Màu Sắc</th>
                                             <th scope="col">Số Lượng</th>
                                             <th scope="col">Lượt bán</th>
+                                            <th scope="col">Phụ phí (+)</th>
                                           </tr>
                                         </thead>
                                         <tbody>
@@ -61,9 +62,30 @@
                                                     <td>
                                                         {{ $item->sale }}
                                                     </td>
-                                                    
-                                            
-                                                
+
+                                                    <td class="d-flex justify-content-center">
+
+                                                      
+
+                                                        <div class="" style="
+                                                            align-items: center;
+                                                            display: flex;
+                                                        ">
+                                                          <form id="updateBonusForm" action="{{ route('admin.product.update-bonus') }}" method="post">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <input type="hidden" name="product_id" value="{{ $item->product_id }}">
+                                                            <input type="hidden" name="color_id" value="{{ $item->color_id }}">
+                                                            <input type="number" id="bonusInput" value="{{ $item->bonus}}" name="bonus">
+                                                            <button type="submit"  class=" btn btn-danger">Cập nhật</button>
+                                                          </form>
+                                                        </div>
+                                                       
+
+                                                      
+                                                      
+                                                      
+                                                  </td>
                                             </tr>
                                            @endforeach
                                         </tbody>
@@ -125,4 +147,30 @@
 
 @push('scripts')
 
+<script>
+  $(document).ready(function() {
+        $('#updateBonusForm').submit(function(e) {
+            e.preventDefault(); // Ngăn chặn form gửi đi một cách bình thường
+
+            var formData = $(this).serialize(); // Chuyển đổi dữ liệu của form thành chuỗi query
+            var url = $(this).attr('action'); // Lấy đường dẫn action từ form
+
+            $.ajax({
+                type: 'PUT',
+                url: url,
+                data: formData,
+                success: function(response) {
+                    // Xử lý kết quả thành công
+                    alert('Cập nhật thành công!');
+                },
+                error: function(xhr, status, error) {
+                    // Xử lý lỗi nếu có
+                    alert('Đã xảy ra lỗi: ' + error);
+                }
+            });
+        });
+
+        
+    });
+</script>
 @endpush

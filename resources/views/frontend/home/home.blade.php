@@ -162,7 +162,7 @@
     <!--============================
         FLASH SELL START
     ==============================-->
-    @include('frontend.home.sections.flash-sale')
+    {{-- @include('frontend.home.sections.flash-sale') --}}
     
     <!--============================
         FLASH SELL END
@@ -187,7 +187,7 @@
     <!--============================
         HOT DEALS START
     ==============================-->
-    @include('frontend.home.sections.hot-deals')
+    {{-- @include('frontend.home.sections.hot-deals') --}}
     
     <!--============================
         HOT DEALS END  
@@ -195,7 +195,7 @@
   <!--============================
        MONTHLY TOP PRODUCT START
     ==============================-->
-    {{-- @include('frontend.home.sections.top-category-product') --}}
+    @include('frontend.home.sections.top-category-product')
     
     <!--============================
        MONTHLY TOP PRODUCT END

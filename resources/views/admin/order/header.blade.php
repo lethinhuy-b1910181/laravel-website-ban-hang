@@ -53,7 +53,7 @@
     <a class="KI5har {{ setActiveHead(['admin.order.canceled']) }}"  href="{{ route('admin.order.canceled') }}">
         <span class="NoH9rC">Đã hủy</span>
         @php
-        $orderCount = \App\Models\OrderTotal::where('order_status', 4)->count();
+        $orderCount = \App\Models\OrderTotal::where('order_status','>', 3)->count();
         
         @endphp
         @if ($orderCount !=0)

@@ -48,7 +48,10 @@
                             $lido = '';
                         }else if($order->order_status == 4 ){
                             $text = 'Đã hủy';
-                            $lido = $order->reason_customer;
+                            $lido = $order->fail_reason;
+                        }else if($order->order_status == 5 ){
+                            $text = 'Giao hàng không thành công';
+                            $lido = $order->fail_reason;
                         }
                     @endphp
                     @if ($order->order_status == 0)
@@ -101,6 +104,18 @@
                             </span>
                         
                         </div>
+                    @elseif($order->order_status == 5)
+                    
+                    <div class="bv3eJE" >
+                        <span class="text-danger">
+                            {{ $text }} - <span style="
+                            color: grey;
+                            font-size: 14px;
+                            text-transform: capitalize;
+                        ">Lí do: {{ $lido }}
+                        </span>
+                    
+                    </div>
                     @elseif($order->order_status == 3)
                     <div class="bv3eJE" >
                         <span class="text-success">

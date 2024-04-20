@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use App\Models\BrandCategory;
+use App\Models\Category;
 use App\DataTables\BrandDataTable;
 use Str;
 use App\Traits\ImageUploadTrait;
@@ -27,7 +29,8 @@ class BrandController extends Controller
      */
     public function create()
     {
-        return view('admin.brand.create');
+        $category = Category::where('status' , 1)->get();
+        return view('admin.brand.create', compact('category'));
         
     }
 
@@ -65,7 +68,8 @@ class BrandController extends Controller
     public function edit(string $id)
     {
         $brand = Brand::findOrFail($id);
-        return view('admin.brand.edit', compact('brand'));
+        $category = Category::where('status' , 1)->get();
+        return view('admin.brand.edit', compact('brand', 'category'));
         
     }
 
@@ -75,7 +79,7 @@ class BrandController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'image' => ['required','image', 'max:2000'],
+           
             'name' => ['required', 'max:200', 'unique:brands,name,'.$id]
             
         ]);
@@ -86,6 +90,31 @@ class BrandController extends Controller
         $brand->status = $request->status;
         $brand->slug = Str::slug($request->name);
         $brand->save();
+        if($brand->save()){
+            $items = $request->category_id;
+
+            $currentCategories = BrandCategory::where('brand_id', $id)->get();
+
+           
+            $currentCategories->each(function ($category) use ($items) {
+                if (!in_array($category->category_id, $items)) {
+                    $category->delete();
+                }
+            });
+
+            foreach ($items as $item) {
+                $existingCategory = $currentCategories->where('category_id', $item)->first();
+                if (!$existingCategory) {
+                    $categoryItem = new BrandCategory();
+                    $categoryItem->brand_id = $id;
+                    $categoryItem->category_id = $item;
+                    $categoryItem->status = 1;
+                    $categoryItem->save();
+                }
+            }
+
+
+        }
         toastr('Dữ liệu đã được lưu!', 'success');
         return redirect()->route('admin.brand.index');
 

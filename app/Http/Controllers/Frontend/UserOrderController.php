@@ -63,10 +63,10 @@ class UserOrderController extends Controller
     }
 
     public function indexCanceled(){
-        $orders = OrderTotal::where([
-            'user_id' => Auth::guard('customer')->user()->id,
-            'order_status' => 4,
-        ])->latest()->get();
+        $orders = OrderTotal::where('user_id', Auth::guard('customer')->user()->id)
+        ->where('order_status', '>', 3)
+        ->latest()
+        ->get();
         $orderCount = $orders->count();
         return view('frontend.account.order.canceled', compact('orders', 'orderCount'));
     }
@@ -82,7 +82,7 @@ class UserOrderController extends Controller
 
     public function cancelOrder(Request $request){
 
-        
+        $data = $request->all();
         $order = OrderTotal::where('id', $data['id'])->first();
         $orderProduct = OrderProduct::where('order_id', $order->id)->get();
         foreach($orderProduct as $item){
@@ -90,7 +90,7 @@ class UserOrderController extends Controller
             $colorDetail->sale -= $item->qty;
             $colorDetail->save();
         }
-        $order->reason_customer = $data['lydo'];
+        $order->fail_reason = $data['lydo'];
         $order->order_status = $data['order_status'];
         
         $order->save();

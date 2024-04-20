@@ -31,16 +31,17 @@ class PaymentController extends Controller
         $shippingAddress = UserAddress::findOrFail($request->shipping_address_id)->toArray();
         if($shippingAddress){
             Session::put('address', $shippingAddress);
-
             $order = new OrderTotal();
             $order->invoice_id = rand(1,999999);
             $order->user_id = Auth::guard('customer')->user()->id;
-            $order->sub_total = getCartTotal(Auth::guard('customer')->user()->id);
-            $order->amount = $order->sub_total;
+            
+           
             $cartItems = CartUser::where('user_id', Auth::guard('customer')->user()->id)->get();
             $order->product_qty = $cartItems->count();
             $order->payment_method = 'VNPay';
             $order->payment_status = 1;
+            $order->sub_total = 0;
+           
 
             if(Session::has('coupon')){
                 $order->order_coupon = json_encode(Session::get('coupon'));
@@ -49,10 +50,34 @@ class PaymentController extends Controller
             $order->order_coupon = NULL;
 
             }
+            $order->amount = 0;
             $order->order_address = json_encode(Session::get('address'));
             $order->order_status= 0;
             $order->save();
-            if($order->order_coupon !=  NULL ){
+            foreach($cartItems as $item){
+                $product = Product::find($item->product_id);
+                $orderProduct = new OrderProduct();
+                $orderProduct->order_id = $order->id;
+                $orderProduct->product_id = $item->product_id;
+                $orderProduct->product_name = $product->name;
+                $orderProduct->color_id = $item->color_id;
+                $orderProduct->unit_price = $item->product_price;
+                $orderProduct->qty = $item->qty;
+                $orderProduct->status = 0;
+                $orderProduct->save();
+                $order->sub_total = $order->sub_total + $item->product_price*$item->qty;
+                $productColor = ColorDetail::where(['product_id'=> $item->product_id, 'color_id' =>$item->color_id])->first();
+                if($productColor){
+                    $productColor->sale += $item->qty;
+                    $productColor->save();
+                }
+
+            }
+            $order->amount =$order->amount + $order->sub_total;
+            $order->save();
+            
+
+            if($order->order_coupon != NULL){
                 $coupon = json_decode($order->order_coupon);
                 
                 if($coupon->coupon_type == 0){
@@ -78,6 +103,8 @@ class PaymentController extends Controller
                         $order->save();
                     }
                 }
+
+                
                 $checkCoupon = CheckCoupon::where([
                                                     
                                                     'user_id' => Auth::guard('customer')->user()->id,
@@ -95,25 +122,6 @@ class PaymentController extends Controller
                     
                     
                 }
-            }
-            
-            foreach($cartItems as $item){
-                $product = Product::find($item->product_id);
-                $orderProduct = new OrderProduct();
-                $orderProduct->order_id = $order->id;
-                $orderProduct->product_id = $item->product_id;
-                $orderProduct->product_name = $product->name;
-                $orderProduct->unit_price = $product->offer_price;
-                $orderProduct->qty = $item->qty;
-                $orderProduct->status = 0;
-                $orderProduct->save();
-
-                $productColor = ColorDetail::where(['product_id'=> $item->product_id, 'color_id' =>$item->color_id])->first();
-                if($productColor){
-                    $productColor->sale += $item->qty;
-                    $productColor->save();
-                }
-
             }
 
             // $transaction = new Transaction();

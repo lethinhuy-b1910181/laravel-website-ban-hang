@@ -1,9 +1,14 @@
 <section id="wsus__weekly_best" class="home2_wsus__weekly_best_2 ">
     <div class="container">
         <div class="row">
-            <div class="col-xl-6 col-sm-6">
+            <div class="col-xl-6 col-sm-6" style="
+            background: white;
+            
+            border-radius: 10px;
+        ">
                 <div class="wsus__section_header">
-                    <h3>weekly best rated Products</h3>
+                    <h3>NEW</h3>
+                    <span>Sản phẩm mới</span>
                 </div>
                 <div class="row weekly_best2">
                     <div class="col-xl-4 col-lg-4">

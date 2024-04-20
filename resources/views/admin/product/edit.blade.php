@@ -52,23 +52,25 @@
                             <input type="number" min="0" value="{{ $product->offer_price }}" class="form-control" name="offer_price" placeholder="Nhập giá bán">
                         </div>
                         <div class="form-group col-4">
-                            <label>Danh mục<span class="text-danger">(*)</span></label>
-                            <select class="form-control selectric" name="category_id">
-                                <option value="">----- Chọn Danh Mục ----- </option>
-                                @foreach ($categories as $item)
-                                    <option value="{{ $item->id }}" {{ $product->category_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group col-4">
                             <label>Thương hiệu<span class="text-danger">(*)</span></label>
-                            <select class="form-control selectric" name="brand_id">
+                            <select class="form-control select2 brand" name="brand_id">
                                 <option value="">----- Chọn Thương Hiệu ----- </option>
                                 @foreach ($brands as $item)
                                     <option value="{{ $item->id }}" {{ $product->brand_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        <div class="form-group col-4">
+                            <label>Danh mục<span class="text-danger">(*)</span></label>
+                            <select class="form-control select2 cate " name="category_id">
+                                <option value="">----- Chọn Danh Mục ----- </option>
+                                @foreach ($brandCategory as $item)
+                               
+                                    <option value="{{ $item->category_id }}" {{ $product->category_id == $item->category_id ? 'selected' : '' }}>{{ $item->category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
                     </div>
                     <div class="row">
 
@@ -180,6 +182,27 @@
             alert("Your browser doesn't support File API!"); //if File API is absent
         }
      });
+     $('.brand').on('change',function(){
+          var brand_id = $(this).val();
+          console.log(brand_id);
+          $.ajax({
+              url: "{{ route('admin.get-category', '') }}/" + brand_id,
+              type: 'GET',
+              success:function(response){
+                  var options = '<option value="">Chọn Danh Mục</option>';
+                  $.each(response, function(id, name){
+                    
+                    options += '<option value="'+id+'">'+name+'</option>';
+                    
+                  });
+                  $('.cate').html(options);
+                  console.log($('.cate').html());
+                 
+              }
+          });
+      });
     });
+
+    
  </script>
  @endpush

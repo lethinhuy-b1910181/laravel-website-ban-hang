@@ -65,8 +65,8 @@
           <a href="{{ route('admin.coupon.index') }}" class="nav-link "><i class="icon-size fa fa-barcode text-dark"></i><span>Mã giảm giá</span></a>
           
         </li>
-        <li class="dropdown">
-          <a href="#" class="nav-link " ><i class="icon-size fas fa-user"></i> <span>Khách hàng</span></a>
+        <li class="dropdown {{ setActive(['admin.customer.*']) }}">
+          <a href="{{ route('admin.customer.index') }}" class="nav-link " ><i class="icon-size fas fa-user"></i> <span>Khách hàng</span></a>
         </li>
         <li class="dropdown {{ setActive(['admin.staff.*']) }}">
           <a href="{{ route('admin.staff.index') }}" class="nav-link  " ><i class="icon-size fas fa-user-check"></i> <span>Nhân viên</span></a>

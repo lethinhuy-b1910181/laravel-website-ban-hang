@@ -20,8 +20,7 @@ class CartController extends Controller
     public function addToCart(Request $request){
 
         $product = Product::findOrFail($request->product_id);
-
-        // dd($request->all());
+     
         
        if(Auth::guard('customer')->check()){
             $cartItem = CartUser::where([

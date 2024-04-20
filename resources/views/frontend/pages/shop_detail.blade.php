@@ -10,7 +10,9 @@
                         <ul>
                             <li><a href="
                                 {{ route('home') }}">Trang chủ</a></li>
-                            <li><a href="#">Cửa Hàng</a></li>
+                                <li><a href="
+                                    {{ route('home.shop') }}">Cửa hàng</a></li>
+                            <li><a href="{{ route('home.shop.detail', $brand->slug ) }}">Máy ảnh {{ $brand->name }}</a></li>
                             
                         </ul>
                     </div>
@@ -44,15 +46,16 @@
                                 <h2 class="accordion-header" id="headingOne">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        Máy ảnh
+                                        Máy Ảnh {{ $brand->name }}
                                     </button>
                                 </h2>
                                 <div id="collapseOne" class="accordion-collapse collapse show"
                                     aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
                                         <ul>
-                                            @foreach ($brands as $brand)
-                                            <li class="brand-content"><a href="{{ route('home.shop.detail',  $brand->slug) }}" class="brand-link  " data-brand="{{ $brand->name }}">Máy Ảnh {{ $brand->name }}</a></li>
+                                            @foreach ($category as $item)
+                                            
+                                                <li class="brand-content"><a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $item->category->slug]) }}" class="brand-link {{ $re_cate == $item->category->slug ? 'active' : '' }}"> {{ $item->category->name }} {{ $brand->name }}</a></li>
                                             @endforeach
                                             
                                         </ul>
@@ -63,35 +66,62 @@
                     </div>
                 </div>
                 <div class="col-xl-9 col-lg-8">
-                    <h1 class="page-title" id="pageTitle">Máy Ảnh</h1>
+                    <h1 class="page-title" id="pageTitle">Máy Ảnh {{ $brand->name }}</h1>
                     <div class="jss596">
                         <div class="jss597">
                             <div>Mức giá:</div>
                             <ul class="jss598">
-
-                                <li class="jss599">
-                                    <a href="{{ route('home.shop', ['brand' => $re_brand, 'price_range' => 'Duoi20']) }}" class="jss604"  >
-                                        <span class="MuiButton-label MuiButton-root {{ $re_price == 'Duoi20' ? 'active' : '' }}">Dưới 1 triệu</span>
-                                    </a>
-                                </li>
-                                <li class="jss599">
-                                    <a href="{{ route('home.shop', ['brand' => $re_brand,'price_range' => 'Tu20Den40']) }}" class="jss604"  >
-                                        <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tu20Den40' ? 'active' : '' }}">Từ 1-3 triệu</span>
-                                    </a>
-                                   
-                                </li>
-                                <li class="jss599">
-                                    <a href="{{ route('home.shop', ['brand' => $re_brand,'price_range' => 'Tu40Den70']) }}" class="jss604"  >
-                                        <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tu40Den70' ? 'active' : '' }}">Từ 3-5 triệu</span>
-                                    </a>
+                                @if ($re_cate != '')
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate, 'price_range' => 'Duoi20']) }}" class="jss604 "  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Duoi20' ? 'active' : '' }}">Dưới 1 triệu</span>
+                                        </a>
+                                    </li>
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => 'Tu20Den40']) }}" class="jss604"  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tu20Den40' ? 'active' : '' }}">Từ 1-3 triệu</span>
+                                        </a>
                                     
-                                </li>
-                                <li class="jss599">
-                                    <a href="{{ route('home.shop', ['brand' => $re_brand,'price_range' => 'Tren70']) }}" class="jss604"  >
-                                        <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tren70' ? 'active' : '' }}">Trên 5 triệu</span>
-                                    </a>
-                                   
-                                </li>
+                                    </li>
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => 'Tu40Den70']) }}" class="jss604"  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tu40Den70' ? 'active' : '' }}">Từ 3-5 triệu</span>
+                                        </a>
+                                        
+                                    </li>
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => 'Tren70']) }}" class="jss604"  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tren70' ? 'active' : '' }}">Trên 5 triệu</span>
+                                        </a>
+                                    
+                                    </li>
+                                @else
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug, 'price_range' => 'Duoi20']) }}" class="jss604 "  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Duoi20' ? 'active' : '' }}">Dưới 1 triệu</span>
+                                        </a>
+                                    </li>
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => 'Tu20Den40']) }}" class="jss604"  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tu20Den40' ? 'active' : '' }}">Từ 1-3 triệu</span>
+                                        </a>
+                                    
+                                    </li>
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => 'Tu40Den70']) }}" class="jss604"  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tu40Den70' ? 'active' : '' }}">Từ 3-5 triệu</span>
+                                        </a>
+                                        
+                                    </li>
+                                    <li class="jss599">
+                                        <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => 'Tren70']) }}" class="jss604"  >
+                                            <span class="MuiButton-label MuiButton-root {{ $re_price == 'Tren70' ? 'active' : '' }}">Trên 5 triệu</span>
+                                        </a>
+                                    
+                                    </li>
+                                    
+                                @endif
+                                
                             </ul>
                         </div>
 
@@ -101,37 +131,68 @@
                     </div>
                     <div class="row">
                         <div class="col-xl-12 d-none d-md-block mt-md-4 mt-lg-0">
+                            
                             <div class="filter-sort__list-filter">
                                 <span style="color:black; padding-right:10px">Sắp xếp theo:</span>
-                                @if (  $re_price != '')
-                                    <a href="{{ route('home.shop',['price_range' => $re_price,'sort' => 'sale' ]) }}" class="btn-filter button__sort {{ $re_sort == 'sale' ? 'active' : '' }}"><div class="icon">
+                                @if ($re_cate != '' && $re_price != '')
+                                    <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => $re_price,'sort' => 'sale' ]) }}" class="btn-filter button__sort {{ $re_sort == 'sale' ? 'active' : '' }}"><div class="icon">
                                     </div>
                                         Bán Chạy Nhất
                                     </a>
-                                    <a href="{{ route('home.shop',['price_range' => $re_price,'sort' => 'view' ]) }}" class="btn-filter button__sort {{ $re_sort == 'view' ? 'active' : '' }}">
+                                    <a href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => $re_price,'sort' => 'view' ]) }}" class="btn-filter button__sort {{ $re_sort == 'view' ? 'active' : '' }}">
                                         <div class="icon"></div>
                                         Xem Nhiều Nhất
                                     </a>
-                                    <a class="btn-filter button__sort {{ $re_sort == 'price_asc' ? 'active' : '' }}" href="{{ route('home.shop',['price_range' => $re_price,'sort' => 'price_asc' ]) }}">
+                                    <a class="btn-filter button__sort {{ $re_sort == 'price_asc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => $re_price,'sort' => 'price_asc' ]) }}">
                                         <div class="icon"></div>
                                         Giá Cao - Thấp
-                                    </a><a class="btn-filter button__sort {{ $re_sort == 'price_desc' ? 'active' : '' }}" href="{{ route('home.shop',['price_range' => $re_price,'sort' => 'price_desc' ]) }}"><div class="icon"></div>
+                                    </a><a class="btn-filter button__sort {{ $re_sort == 'price_desc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'price_range' => $re_price,'sort' => 'price_desc' ]) }}"><div class="icon"></div>
                                         Giá Thấp - Cao
                                     </a>
-                               @else 
-                                    
-                                    <a class="btn-filter button__sort {{ $re_sort == 'sale' ? 'active' : '' }}" href="{{ route('home.shop',['sort' => 'sale' ]) }}"><div class="icon">
+                                @elseif($re_cate != '' && $re_price == '')
+                                    <a class="btn-filter button__sort {{ $re_sort == 'sale' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'sort' => 'sale' ]) }}"><div class="icon">
                                     </div>
                                         Bán Chạy Nhất
                                     </a>
-                                    <a class="btn-filter button__sort {{ $re_sort == 'view' ? 'active' : '' }}" href="{{ route('home.shop',['sort' => 'view' ]) }}">
+                                    <a class="btn-filter button__sort {{ $re_sort == 'view' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'sort' => 'view' ]) }}">
                                         <div class="icon"></div>
                                         Xem Nhiều Nhất
                                     </a>
-                                    <a class="btn-filter button__sort {{ $re_sort == 'price_asc' ? 'active' : '' }}" href="{{ route('home.shop',['sort' => 'price_asc' ]) }}">
+                                    <a class="btn-filter button__sort {{ $re_sort == 'price_asc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'sort' => 'price_asc' ]) }}">
                                         <div class="icon"></div>
                                         Giá Cao - Thấp
-                                    </a><a class="btn-filter button__sort {{ $re_sort == 'price_desc' ? 'active' : '' }}" href="{{ route('home.shop',['sort' => 'price_desc' ]) }}"><div class="icon"></div>
+                                    </a><a class="btn-filter button__sort {{ $re_sort == 'price_desc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'category' => $re_cate,'sort' => 'price_desc' ]) }}"><div class="icon"></div>
+                                        Giá Thấp - Cao
+                                    </a>
+                                @elseif($re_cate == '' && $re_price != '')
+                                    <a class="btn-filter button__sort {{ $re_sort == 'sale' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => $re_price,'sort' => 'sale' ]) }}"><div class="icon">
+                                    </div>
+                                        Bán Chạy Nhất
+                                    </a>
+                                    <a class="btn-filter button__sort {{ $re_sort == 'view' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => $re_price,'sort' => 'view' ]) }}">
+                                        <div class="icon"></div>
+                                        Xem Nhiều Nhất
+                                    </a>
+                                    <a class="btn-filter button__sort {{ $re_sort == 'price_asc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => $re_price,'sort' => 'price_asc' ]) }}">
+                                        <div class="icon"></div>
+                                        Giá Cao - Thấp
+                                    </a><a class="btn-filter button__sort {{ $re_sort == 'price_desc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'price_range' => $re_price,'sort' => 'price_desc' ]) }}"><div class="icon"></div>
+                                        Giá Thấp - Cao
+                                    </a>
+                                @else 
+                                    
+                                    <a class="btn-filter button__sort {{ $re_sort == 'sale' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'sort' => 'sale' ]) }}"><div class="icon">
+                                    </div>
+                                        Bán Chạy Nhất
+                                    </a>
+                                    <a class="btn-filter button__sort {{ $re_sort == 'view' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'sort' => 'view' ]) }}">
+                                        <div class="icon"></div>
+                                        Xem Nhiều Nhất
+                                    </a>
+                                    <a class="btn-filter button__sort {{ $re_sort == 'price_asc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'sort' => 'price_asc' ]) }}">
+                                        <div class="icon"></div>
+                                        Giá Cao - Thấp
+                                    </a><a class="btn-filter button__sort {{ $re_sort == 'price_desc' ? 'active' : '' }}" href="{{ route('home.shop.detail',['slug' => $brand->slug,'sort' => 'price_desc' ]) }}"><div class="icon"></div>
                                         Giá Thấp - Cao
                                     </a>
                                     
@@ -156,6 +217,7 @@
                                             <ul class="wsus__single_pro_icon">
                                                 <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-{{ $item->id }}"><i
                                                             class="far fa-eye"></i></a></li>
+
                                                         @if (Auth::guard('customer')->check())
                                                             @php
                                                             
@@ -460,11 +522,11 @@
       PRODUCT MODAL VIEW START
     ===========================-->
     @foreach ($products as $product)
-    @php
-        
-        $sale = \App\Models\ColorDetail::where('product_id', $product->id)->sum('sale');
-        $tong = \App\Models\ColorDetail::where('product_id', $product->id)->sum('quantity') - $sale;
-    @endphp
+        @php
+            
+            $sale = \App\Models\ColorDetail::where('product_id', $product->id)->sum('sale');
+            $tong = \App\Models\ColorDetail::where('product_id', $product->id)->sum('quantity') - $sale;
+        @endphp
         <section class="product_popup_modal">
         <div class="modal fade" id="exampleModal-{{ $product->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
@@ -602,21 +664,7 @@
                                     <ul class="wsus__button_area">
                                         <li><button type="submit" class="add_cart" href="#" >Thêm giỏ hàng</button></li>
                                         {{-- <li><a class="buy_now" href="#">buy now</a></li> --}}
-                                        @if (Auth::guard('customer')->check())
-                                            @php
-                                            
-                                            $check = \App\Models\Wishlist::where('user_id',Auth::guard('customer')->user()->id)->where('product_id',$product->id)->first();
-                                            if($check){
-                                                $i = 'fas fa-heart text-danger';
-                                            }else {
-                                                $i = 'fal fa-heart';
-                                            }
-                                            @endphp
-                                            <li><a href=""><i class="{{ $i }}" data-id="{{ $product->id }}" class="wishlist"></i></a></li>
-                                        @else
-                                            <li><a href=""><i class="fal fa-heart" data-id="{{ $product->id }}" class="wishlist"></i></a></li>
-                                            
-                                        @endif
+                                        <li><a href="#"><i class="fal fa-heart"></i></a></li>
                                         <li><a href="#"><i class="far fa-random"></i></a></li>
                                     </ul>
                                     <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
@@ -640,24 +688,7 @@
 @endsection
 
 @push('scripts')
-    <script>
-        function filterByPrice(priceRange) {
-    // Gửi yêu cầu AJAX để lọc sản phẩm theo mức giá
-    $.ajax({
-        url: "{{ route('home.shop') }}", // Điều chỉnh đường dẫn tới route phù hợp
-        type: 'GET',
-        data: { price_range: priceRange }, // Gửi mức giá được chọn đến controller
-        success: function(response) {
-            // Xử lý dữ liệu trả về từ controller, ví dụ: cập nhật danh sách sản phẩm trên giao diện
-        },
-        error: function(xhr, status, error) {
-            // Xử lý lỗi nếu có
-        }
-    });
-}
 
 
-    </script>
-    
 @endpush
 

@@ -27,9 +27,14 @@
                         <input type="text" class="form-control" name="name">
                     </div>
                     <div class="form-group">
-                        <label for="">Hình ảnh</label>
-                        <input type="file" class="form-control" name="image">
-                    </div>
+                      <label for="">Danh mục sản phẩm<span class="text-danger">(*)</span></label>
+                      
+                      <select class="form-control select2" multiple="" name='category_id[]'>
+                          @foreach ($category as $item)
+                              <option value="{{ $item->id }}">{{ $item->name }}</option>
+                          @endforeach
+                      </select>
+                  </div>
                     
                     <div class="form-group">
                       <label>Trạng thái hiển thị</label>

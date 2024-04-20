@@ -64,7 +64,7 @@
       </div>
       <div class="col-lg-4 col-md-4 col-sm-12" >
         <div class="card card-statistic-2" style="
-        height: 196px;background: aliceblue;
+        height: 196px;
     ">
           <div class="card-chart">
             <div class="card-header" style="
@@ -221,7 +221,7 @@
     <script>
       $(document).ready(function(){
         chart60days();
-        chartmini();
+   
         var chart = new Morris.Bar({
       
           element: 'myfirstchart',
@@ -236,32 +236,8 @@
           barLabel: 'Tên Biểu đồ'
         });
 
-        var miniChart = new Morris.Bar({
-      
-          element: 'minichart',
+        
 
-          barColors: ['#eb3434', '#66a5ad', '#003b46', '#eb9f34'],
-          
-          parseTime: false,
-          hideHover: 'auto',
-          xkey: 'period',
-          ykeys: ['order', 'sales' , 'profit', 'quantity'],
-          labels: ['Đơn hàng', 'Doanh thu' , 'Lợi nhuận', 'Số lượng'],
-        });
-
-        function chartmini (){
-          var _token = $('input[name="_token"]').val();
-          $.ajax({
-            url: "{{ route('admin.dashboard.filter-by-60-date') }}",
-            method: "POST",
-            data:{
-              _token:_token
-            },
-            success:function(data){
-              miniChart.setData(data);
-              }
-          });
-        }
 
         function chart60days(){
           var _token = $('input[name="_token"]').val();

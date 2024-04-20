@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Statistical;
-use App\Models\Order;
+use App\Models\OrderTotal;
 use Carbon\Carbon;
 
 class StatisticsController extends Controller
@@ -105,24 +105,24 @@ class StatisticsController extends Controller
        
 
         // Lọc và tính tổng số đơn hàng mới (order_status = 0)
-        $newOrders = Order::whereYear('created_at', $currentYear)
+        $newOrders = OrderTotal::whereYear('created_at', $currentYear)
         ->whereMonth('created_at', $monthId)
         ->where('order_status', 0)
         ->count();
 
         // Lọc và tính tổng số đơn hàng đang giao (order_status = 2)
-        $shippingOrders = Order::whereYear('created_at', $currentYear)
+        $shippingOrders = OrderTotal::whereYear('created_at', $currentYear)
             ->whereMonth('created_at', $monthId)
             ->where('order_status', 2)
             ->count();
 
         // Lọc và tính tổng số đơn hàng đã hoàn thành (order_status = 3)
-        $completedOrders = Order::whereYear('created_at', $currentYear)
+        $completedOrders = OrderTotal::whereYear('created_at', $currentYear)
             ->whereMonth('created_at', $monthId)
             ->where('order_status', 3)
             ->count();
 
-            $canceledOrders = Order::whereYear('created_at', $currentYear)
+            $canceledOrders = OrderTotal::whereYear('created_at', $currentYear)
             ->whereMonth('created_at', $monthId)
             ->where('order_status', 4)
             ->count();

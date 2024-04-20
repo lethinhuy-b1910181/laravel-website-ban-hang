@@ -108,6 +108,7 @@
               url: "{{ route('user.get-district', '') }}/" + city_id,
               type: 'GET',
               success:function(response){
+         
                   var options = '<option value="">Chọn Quận/Huyện</option>';
                   $.each(response, function(index, district){
                       options += '<option value="'+district.id+'">'+district.name+'</option>';

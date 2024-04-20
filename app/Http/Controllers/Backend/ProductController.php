@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ReceiptProduct;
 use App\Models\Category;
+use App\Models\BrandCategory;
 use App\Models\Brand;
 use App\Models\ProductImage;
 use App\Models\ColorDetail;
@@ -126,7 +127,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $multiImgs = ProductImage::where('product_id', $id)->get();
-        return view('admin.product.edit', compact('product', 'multiImgs'));
+        $brandCategory = BrandCategory::where(['brand_id' => $product->brand_id ])->get();
+        return view('admin.product.edit', compact('product', 'multiImgs', 'brandCategory'));
     }
 
     /**
@@ -266,4 +268,24 @@ class ProductController extends Controller
         );
         return redirect()->back()->with($notification);
     }//End Method
+
+
+    public function updateBonus(Request $request){
+        $product = ColorDetail::where(['product_id' => $request->product_id, 'color_id' => $request->color_id])->first();
+        if($product){
+            $product->bonus = $request->bonus;
+            $product->save();
+            return response()->json(['status' => 'success']);
+        } else {
+            return response()->json(['status' => 'error']);
+        }
+    }
+
+    public function getCategory($brand_id){
+        $brandCategory = BrandCategory::where('brand_id', $brand_id)->pluck('category_id');
+       
+        $category_names = Category::whereIn('id', $brandCategory)->pluck('name', 'id');
+        return response()->json($category_names);
+    }
+
 }

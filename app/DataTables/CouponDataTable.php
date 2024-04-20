@@ -24,10 +24,18 @@ class CouponDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($query){
-                $sendBtn = "<a href='".route('admin.product.edit', $query->id)."'class='status-btn btn btn-info mr-1 ' title='Gửi mã giảm giá' ><i class='fas fa-paper-plane'></i></a>";
-                $editBtn = "<a href='".route('admin.coupon.edit', $query->id)."'class='status-btn btn btn-warning mr-1 ' title='Cập nhật mã giảm giá' ><i class='fas fa-edit  '></i></a>";
-                $deleteBtn = "<a href='".route('admin.product.destroy', $query->id)."'  class=' status-btn btn btn-danger   delete-item' title='Xóa mã giảm giá'><i class=' fas fa-trash-alt'></i></a>";
-                return $sendBtn.$editBtn.$deleteBtn;
+                if($query->end_date < date('Y-m-d')){
+                    $editBtn = "<a href='".route('admin.coupon.edit', $query->id)."'class='status-btn btn btn-warning mr-1 ' title='Cập nhật mã giảm giá' ><i class='fas fa-edit  '></i></a>";
+                    $deleteBtn = "<a href='".route('admin.product.destroy', $query->id)."'  class=' status-btn btn btn-danger   delete-item' title='Xóa mã giảm giá'><i class=' fas fa-trash-alt'></i></a>";
+                    return $editBtn.$deleteBtn;
+                   
+                }else{
+                    $sendBtn = "<a href='".route('admin.coupon.send.index', $query->id)."'class='status-btn btn btn-info mr-1 ' title='Gửi mã giảm giá' ><i class='fas fa-paper-plane'></i></a>";
+                    $editBtn = "<a href='".route('admin.coupon.edit', $query->id)."'class='status-btn btn btn-warning mr-1 ' title='Cập nhật mã giảm giá' ><i class='fas fa-edit  '></i></a>";
+                    $deleteBtn = "<a href='".route('admin.product.destroy', $query->id)."'  class=' status-btn btn btn-danger   delete-item' title='Xóa mã giảm giá'><i class=' fas fa-trash-alt'></i></a>";
+                    return $sendBtn.$editBtn.$deleteBtn;
+                }
+               
             })
             ->addColumn('code', function($query){
                 
@@ -71,7 +79,7 @@ class CouponDataTable extends DataTable
      */
     public function query(Discount $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->latest()->newQuery();
     }
 
     /**
@@ -115,7 +123,7 @@ class CouponDataTable extends DataTable
                   ->exportable(false)
                   ->printable(false)
                   ->width(125)
-                  ->addClass('text-center'),
+                  ->addClass('text-right'),
         ];
     }
 

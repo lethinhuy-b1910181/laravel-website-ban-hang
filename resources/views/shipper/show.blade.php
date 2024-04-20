@@ -1,6 +1,6 @@
 @php
     $address = json_decode($order->order_address);
-    $email = \App\Models\User::where('id', $address->user_id)->first();
+    $email = \App\Models\Customer::where('id', $address->user_id)->first();
 
     $city = \App\Models\City::where('id', $address->city_id)->first();
     $district = \App\Models\District::where('id', $address->district_id)->first();
@@ -28,7 +28,12 @@
       <div class="row">
         <div class="col-12 col-md-12 col-lg-12">
           <div class="card">
+            <div class="float-lg-left mb-lg-0 mb-3 ml-2 mr-2 ">
+              <button  class="back_to_shipper_index  btn btn-info btn-icon icon-left" type="submit" >Quay lại</button>
+                
+            </div>
             <div class="card-header">
+              
               <h4>Chi tiết đơn hàng</h4>
             </div>
             <div class="card-body">
@@ -53,6 +58,8 @@
                                   Giao hàng thành công
                               @elseif($order->order_status == 4)
                                   Đơn hàng bị hủy
+                              @elseif($order->order_status == 5)
+                                  Giao hàng không thành công - Lí do: {{ $order->fail_reason }}
                               @endif
                           </span></strong>
                           </address>
@@ -193,7 +200,7 @@
                         </div>
                       </div>
                       <hr>
-                      @if ($order->shipper_status == 0)
+                      @if ($order->shipper_status == 0 && $order->order_status != 5)
                       
                         <div class="text-md-right ml-3 ">
                           <div class="float-lg-right  ">
@@ -217,7 +224,7 @@
 
                         </div>
                    
-                      @elseif($order->shipper_status == 1)
+                      @elseif($order->shipper_status == 1 && $order->order_status != 5)
                      
                         <div class="text-md-right ml-3 " id="btn-xacnhan">
                           <div class="float-lg-right  ">
@@ -247,10 +254,9 @@
                             </div>
 
 
-                            <form action="" method="POST">
+                            <form action="{{ route('shipper.fail-order') }}" method="POST">
                                 @csrf
-                               
-                              
+                               <input type="hidden" name="order_id" value="{{ $order->id }}">
                                 <div >
                                     <textarea class="form-control" name="reason" id="" cols="30" rows="4" placeholder="Để lại lí do giao hàng không thành công..."></textarea>
                                 </div>
@@ -258,12 +264,17 @@
                                 <br>
                                 <div class="col-12 d-flex justify-content-end">
                                     <button class="btn btn-info text-light" type="submit"> Gửi Lí Do</button>
-                          <button class="btn btn-danger btn-icon icon-left ml-2 " id="backButton" ><i class="fas fa-times" ></i> Quay lại</button>
+                                    <button class="btn btn-danger btn-icon icon-left ml-2 " id="backButton" ><i class="fas fa-times" ></i> Quay lại</button>
 
                                 </div>
                             </form>
 
                         </div>
+                      @elseif($order->order_status == 5 || $order->order_status == 3)
+                      <div class="float-lg-left mb-lg-0 mb-3 ml-2 mr-2 ">
+                        <button  class="back_to_shipper_index  btn btn-info btn-icon icon-left" type="submit" >Quay lại</button>
+                          
+                      </div>
                       @endif
                       
                      
@@ -302,6 +313,14 @@
           }
       });
   }
+
+  $(document).ready(function() {
+    // Bắt sự kiện click trên nút button
+    $('.back_to_shipper_index').on('click', function() {
+        // Chuyển hướng trang
+        window.location.href = "{{ route('shipper.shipper.index') }}";
+    });
+});
 </script>
 
 <script>
@@ -318,6 +337,8 @@
         // Thêm lại lớp d-none
         document.getElementById('failureReason').classList.add('d-none');
   });
+
+ 
 </script>
 
 {{-- <script>

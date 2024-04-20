@@ -24,20 +24,23 @@
                     @csrf
                     @method('PUT')
                     <div class="form-group">
-                        <label for="">Tên Thương Hiệu</label>
+                        <label for="">Tên Thương Hiệu<span class="text-danger">(*)</span></label>
                         <input type="text" value="{{ $brand->name }}" class="form-control" name="name">
                     </div>
-                    <div class="form-group">
-                        <label for="">Hình ảnh Logo</label>
-                        <div class="input_img">
-                            <input type="file" name="image" value="{{ $brand->image }}" id="custom-file-input" accept=".xlsx,.xls,image/*,.doc,audio/*,.docx,video/*,.ppt,.pptx,.txt,.pdf" 
-                                class="form-control" >
 
-                        </div>
-                        <div class="mt-2">
-                            <img id="preview_avtimg" src="{{ asset($brand->image) }}"  width="100" height="100">
-                        </div>
-                    </div>
+                    <div class="form-group">
+                      <label for="">Danh mục sản phẩm<span class="text-danger">(*)</span></label>
+                      
+                      <select class="form-control select2" multiple="" name='category_id[]'>
+                          @foreach ($category as $item)
+                            <option value="{{ $item->id }}" {{ $brand->category->contains('id', $item->id) ? 'selected' : '' }}>
+                              {{ $item->name }}
+                          </option>
+                             
+                          @endforeach
+                      </select>
+                  </div>
+                    
                     <div class="form-group">
                       <label>Trạng thái hiển thị</label>
                       <select class="form-control selectric" name="status">

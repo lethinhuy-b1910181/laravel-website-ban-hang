@@ -4180,7 +4180,7 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-men
 }
 
 .card .card-header h4 {
-  font-size: 18px !important;
+  font-size: 20px !important;
 
 }
 
@@ -4534,4 +4534,32 @@ address {
 
 #orders-month:hover{
   text-decoration: underline;
+}
+.coupon{
+  padding: 10px;
+  border: #103679 dashed 2px;
+  border-radius: 12px;
+  margin:10px 100px;
+  
+}
+
+.coupon-title{
+  text-transform: capitalize;
+  color: #34395e;
+  justify-content: center;
+  display: flex;
+  padding-bottom: 20px;
+  padding-top: 15px
+}
+.coupon-title h4{
+  font-size: 20px;
+}
+
+.coupon-content__title{
+  font-weight: 600 !important;
+  color: #103679;
+}
+.coupon-content__title span{
+  font-weight: 500 !important;
+  color: #000;
 }

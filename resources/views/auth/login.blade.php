@@ -30,11 +30,11 @@
                                         @csrf
                                         <div class="wsus__login_input">
                                             <i class="fas fa-user-tie"></i>
-                                            <input id="email" type="email" class="form-control" name="email"   autofocus value="{{ old('email') }}"placeholder="Email">
+                                            <input type="email" class="form-control" name="email"   autofocus value="{{ old('email') }}"placeholder="Email">
                                         </div>
                                         <div class="wsus__login_input">
                                             <i class="fas fa-key"></i>
-                                            <input id="password" type="password" class="form-control" name="password"  placeholder="Mật khẩu">
+                                            <input  type="password" class="form-control" name="password"  placeholder="Mật khẩu">
                                         </div>
                                         <div class="wsus__login_save">
                                             <div class="form-check form-switch">
@@ -65,11 +65,11 @@
                                         </div>
                                         <div class="wsus__login_input">
                                             <i class="far fa-envelope"></i>
-                                            <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="Email">
+                                            <input type="email" name="email" value="{{ old('email') }}" placeholder="Email">
                                         </div>
                                         <div class="wsus__login_input">
                                             <i class="fas fa-key"></i>
-                                            <input type="password" id="password" name="password"  placeholder="Mật khẩu">
+                                            <input type="password"  name="password"  placeholder="Mật khẩu">
                                         </div>
                                         <div class="wsus__login_input">
                                             <i class="fas fa-key"></i>

@@ -7,12 +7,16 @@ use Illuminate\Http\Request;
 use App\DataTables\ShipperDataTable;
 use App\Models\OrderTotal;
 use App\Models\Product;
+use App\Models\ColorDetail;
 use App\Models\OrderProduct;
 use Auth;
 use Hash;
 use App\Models\Statistical;
+use App\Models\Customer;
 use App\Models\KhoHang;
 use Carbon\Carbon;
+use Mail;
+
 
 class ShipperController extends Controller
 {
@@ -121,40 +125,40 @@ class ShipperController extends Controller
             $orderProduct = OrderProduct::where('order_id', $order->id)->get();
 
             $chi_phi = 0;    
-
+            $so_luong = 0;
             foreach($orderProduct as $item){
                 $product = Product::where('id', $item->product_id)->first();
                 $product->sales += $item->qty;
                 $product->save();
-                $khoHang = KhoHang::where('product_id', $item->product_id)
-                    ->where('color_id', $item->color_id)
-                    ->where('quantity', '>', 0)
-                    ->first();
+                $so_luong = $so_luong + $item->qty;
+                
                 $gia_ban = $item->price;
                 $sl_mua = $item->qty;  
                 while($sl_mua > 0){
-                    while($khoHang->quantity > 0 && $sl_mua > 0){
-                        $chi_phi +=   $khoHang->price;
-                        $sl_mua--;
-                        $khoHang->quantity --;
-                        $khoHang->save();
+                    $khoHang = KhoHang::where('product_id', $item->product_id)
+                    ->where('color_id', $item->color_id)
+                    ->where('quantity', '>', 0)
+                    ->first();
+                     $sl_kho = $khoHang->quantity;
+                     
+                     
+                    while( $sl_kho > 0 && $sl_mua > 0){
+                        $chi_phi =    $chi_phi +$khoHang->price;
+                        $sl_mua  = $sl_mua- 1 ;
+                        $sl_kho = $sl_kho - 1;
+                        
                     }
-                    if($sl_mua > 0){
-                        $khoHang = KhoHang::where('product_id', $item->product_id)
-                                            ->where('color_id', $item->color_id)
-                                            ->where('quantity', '>', 0)
-                                            ->first();
-                    }
+                    
+                    $khoHang->quantity = $sl_kho ;
+                    $khoHang->save();
+                    
                 }
             }
-
-           
-
            
             if($statistical){
                 
-                $statistical->sales+= $order->amount;
-                $statistical->quantity+=$order->product_qty ;
+                $statistical->sales= $statistical->sales + $order->amount;
+                $statistical->quantity+=$so_luong ;
                 $statistical->total_order++;
                 $statistical->profit = $statistical->profit + $order->amount - $chi_phi;
               
@@ -164,17 +168,52 @@ class ShipperController extends Controller
                 $statistical = new Statistical();
                 $statistical->order_date = $order_date;
                 $statistical->sales= $order->amount;
-                $statistical->quantity=$order->product_qty ;
+                $statistical->quantity=$so_luong ;
                 $statistical->total_order = 1;
                 $statistical->profit = $order->amount - $chi_phi;
                 $statistical->save();
             }
+
+
+      
+   
+                $address = json_decode($order->order_address);
+               
+        
+                $customers = Customer::where('id' ,$order->user_id)->first();
+                $customers->total_money+=$order->sub_total;
+                $customers->save();
+
+    
+                $title_email = "Đơn hàng #".$order->id." đã giao hàng thành công";
+    
+                $data['email'][] =   $customers->email ;
+                
+                $date = Carbon::parse($order->updated_at)->format('d-m-y H:i:s');
+                $info_array = array(
+                    'customer_name' => $address->name,
+                    'order_date' => $date,
+                    'order_id' => $order->id,
+                   
+    
+                );
+                Mail::send('admin.order.mail_complete', ['info_array'=>$info_array], function($message)use ($title_email, $data){
+                    $message->to($data['email'])->subject($title_email);
+                    $message->from($data['email'], $title_email);
+                });
+                
+        
+            
+
            
             
         }
+
         toastr()->success('Giao hàng thành công!');
         return redirect()->route('shipper.shipper.index');
     }
+
+
     public function changeStatus(Request $request){
         $receipt = OrderTotal::findOrFail($request->id);
         $receipt->order_status = $request->status;
@@ -195,6 +234,21 @@ class ShipperController extends Controller
         $order->save();
         return redirect()->route('shipper.shipper.index');
 
+    }
+
+
+    public function failOrder(Request $request ){
+        $order = OrderTotal::findOrFail($request->order_id);
+        $orderProduct = OrderProduct::where('order_id', $order->id)->get();
+        foreach($orderProduct as $item){
+            $colorDetail = ColorDetail::where(['product_id'=> $item->product_id, 'color_id' =>$item->color_id])->first();
+            $colorDetail->sale -= $item->qty;
+            $colorDetail->save();
+        }
+        $order->order_status = 5;
+        $order->fail_reason = $request->reason;
+        $order->save();
+        return redirect()->route('shipper.shipper.index')->with('Cập nhật trạng thái đơn hàng thành công!'); 
     }
 
 

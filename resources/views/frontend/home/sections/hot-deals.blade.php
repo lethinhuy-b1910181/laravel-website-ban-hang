@@ -22,7 +22,21 @@
                     <ul class="wsus__single_pro_icon">
                         <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-{{ $item->id }}"><i
                                     class="far fa-eye"></i></a></li>
-                        <li><a href="#"><i class="far fa-heart"></i></a></li>
+                            @if (Auth::guard('customer')->check())
+                            @php
+                                
+                                $check = \App\Models\Wishlist::where('user_id',Auth::guard('customer')->id)->where('product_id',$item->id)->first();
+                                if($check){
+                                    $i = 'fas fa-heart text-danger';
+                                }else {
+                                    $i = 'fal fa-heart';
+                                }
+                            @endphp
+                                <li><a href="#"><i class="{{ $i }}" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
+                            @else
+                                <li><a href="#"><i class="fal fa-heart" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
+                                
+                            @endif
                         <li><a href="#"><i class="far fa-random"></i></a>
                     </ul>
                     <div class="wsus__product_details">
@@ -32,7 +46,40 @@
                             @endphp
                             {{ $temp->name}} 
                         </a>
-                        <p class="wsus__pro_rating">
+                        <p class="wsus__pro_rating">       
+                            @php
+                                $colorStar = \App\Models\ProductReview::where( 'product_id', $item->id)->count();
+                                $star = \App\Models\ProductReview::where( 'product_id', $item->id)->avg('star');
+
+                                
+                                // Lấy trung bình cộng của đánh giá
+                                $average_star = \App\Models\ProductReview::where('product_id', $item->id)->avg('star');
+                                
+                                // Tạo một biến để lưu trữ số sao nguyên
+                                $full_stars = floor($average_star);
+                                
+                                // Kiểm tra xem trung bình có phần thập phân không
+                                $has_half_star = $average_star - $full_stars > 0;
+                            @endphp
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= $full_stars)
+                                    {{-- Tô màu sao đầy --}}
+                                    @php $colorIcon = 'color:#ffcc00;'; @endphp
+                                    <i class="fas fa-star" style="{{ $colorIcon }}"></i>
+                                @elseif ($has_half_star && $i == $full_stars + 1)
+                                    {{-- Tô màu sao bán chấp nhận được --}}
+                                    @php $colorIcon = 'color:#ffcc00;'; @endphp
+                                    <i class="fas fa-star-half" style="{{ $colorIcon }}"></i>
+                                @else
+                                    {{-- Tô màu sao rỗng --}}
+                                    @php $colorIcon = 'color:#ccc;'; @endphp
+                                    <i class="far fa-star" style="{{ $colorIcon }}"></i>
+                                @endif
+                            @endfor
+                             
+                            <span>{{ $colorStar }} Đánh giá</span>
+                        </p>
+                        {{-- <p class="wsus__pro_rating">
                             
                             @for ($i = 1; $i <= 5; $i++)
                                 
@@ -57,7 +104,7 @@
                                 @endfor
                             <span>{{ $count }} Đánh giá</span>
                        
-                        </p>
+                        </p> --}}
                         <a class="wsus__pro_name wsus__pro_name-home"  data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $item->name }}" href="{{ route('product-detail',$item->slug) }}">{{ $item->name }}</a>
                         <p class="wsus__price text-danger"  >{{ number_format($item->offer_price, 0, ',', '.') }}&#8363;</p>
                         {{-- <a class="add_cart" href="#">Thêm vào giỏ hàng</a> --}}
@@ -213,7 +260,21 @@
                                     <ul class="wsus__button_area">
                                         <li><button type="submit" class="add_cart" href="#" >Thêm giỏ hàng</button></li>
                                         {{-- <li><a class="buy_now" href="#">buy now</a></li> --}}
-                                        <li><a href="#"><i class="fal fa-heart"></i></a></li>
+                                        @if (Auth::guard('customer')->check())
+                                            @php
+                                            
+                                            $check = \App\Models\Wishlist::where('user_id',Auth::guard('customer')->id)->where('product_id',$product->id)->first();
+                                            if($check){
+                                                $i = 'fas fa-heart text-danger';
+                                            }else {
+                                                $i = 'fal fa-heart';
+                                            }
+                                        @endphp
+                                        <li><a href="#"><i class="{{ $i }}" class="wishlist"></i></a></li>
+                                    @else
+                                    <li><a href="#"><i class="fal fa-heart" class="wishlist"></i></a></li>
+                                        
+                                    @endif
                                         <li><a href="#"><i class="far fa-random"></i></a></li>
                                     </ul>
                                

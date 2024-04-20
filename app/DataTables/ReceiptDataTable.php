@@ -116,6 +116,7 @@ class ReceiptDataTable extends DataTable
         return [
             Column::make('id')->width(50)->title('ID')->addClass('text-center')->addClass('align-middle'),
             Column::make('user_id')->width(120)->title('Người lập phiếu')->addClass('align-middle'),
+            // Column::make('note')->width(120)->title('Ghi chú')->addClass('align-middle'),
             Column::make('input_date')->width(140)->title('Ngày nhập')->addClass('align-middle')->addClass('text-center'),
             Column::make('confirm_date')->width(140)->title('Ngày xác nhận')->addClass('align-middle')->addClass('text-center'),
             Column::make('status')->width(100)->title('Trạng thái')->addClass('text-center')->addClass('align-middle'),

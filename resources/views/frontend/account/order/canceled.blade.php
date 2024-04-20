@@ -43,7 +43,10 @@
                             $lido = '';
                         }else if($order->order_status == 4 ){
                             $text = 'Đã hủy';
-                            $lido = $order->reason_customer;
+                            $lido = $order->fail_reason;
+                        }else if($order->order_status == 5 ){
+                            $text = 'Giao hàng không thành công';
+                            $lido = $order->fail_reason;
                         }
                     @endphp
                     @if($order->order_status == 4)

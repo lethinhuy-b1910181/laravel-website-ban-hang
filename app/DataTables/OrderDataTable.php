@@ -81,6 +81,9 @@ class OrderDataTable extends DataTable
                 else if($query->order_status == 4){
                     $button = '<span class="btn btn-danger btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
                 }
+                else if($query->order_status == 5){
+                    $button = '<span class="btn btn-danger btn-sm">Không hoàn thành <i class="bx bx-x-circle"></i></span>';
+                }
                 
                 return $button;
                 

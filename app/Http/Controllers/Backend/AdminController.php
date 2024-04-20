@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Quyen;
+use App\Models\City;
 use App\Models\OrderTotal;
 use App\Models\ChiTietQuyen;
 use App\Models\Statistical;
+use App\DataTables\CustomerDataTable;
 use App\DataTables\AdminDataTable;
 use App\DataTables\AdminShipperDataTable;
 use App\Mail\Websitemail;
@@ -20,7 +23,6 @@ use Auth;
 class AdminController extends Controller
 {
     public function dashboard(){
-        // $products = []; 
         $products = Product::where('sales' ,'>', 0)->orderBy('sales', 'desc')->take(10)->get();
         $total_order = Statistical::sum('total_order');
         $total_sale = Statistical::sum('sales');
@@ -33,14 +35,14 @@ class AdminController extends Controller
 
         $isCurrentMonth = $currentMonth == $currentMonth;
 
-        $total_order = Statistical::whereYear('order_date', $currentYear)
-            ->whereMonth('order_date', $currentMonth)
-            ->sum('total_order');
+        $total_order = OrderTotal::whereYear('created_at', $currentYear)
+                    ->whereMonth('created_at', $currentMonth)
+                    ->count();
 
-            $newOrders = OrderTotal::whereYear('created_at', $currentYear)
-            ->whereMonth('created_at', $currentMonth)
-            ->where('order_status', 0)
-            ->count();
+        $newOrders = OrderTotal::whereYear('created_at', $currentYear)
+        ->whereMonth('created_at', $currentMonth)
+        ->where('order_status', 0)
+        ->count();
 
         // Lọc và tính tổng số đơn hàng đang giao (order_status = 2)
         $shippingOrders = OrderTotal::whereYear('created_at', $currentYear)
@@ -65,6 +67,12 @@ class AdminController extends Controller
     {
         return $dataTable->render('admin.staff.index');
     }
+
+    public function indexCustomer(CustomerDataTable $dataTable)
+    {
+        return $dataTable->render('admin.customer.index');
+    }
+
     public function indexShipper(AdminShipperDataTable $dataTable)
     {
         return $dataTable->render('admin.shipper.index');
@@ -78,6 +86,15 @@ class AdminController extends Controller
         return view('admin.staff.create', compact('quyens'));
     }
 
+    public function createCustomer(){
+        $cities = City::orderBy('name')->get();
+
+        return view('admin.customer.create', compact('cities'));
+    }
+    public function showCustomer($id){
+        $user = Customer::where('id', $id)->first();
+        return view('admin.customer.show', compact('user'));
+    }
     public function store(Request $request){
         $request->validate([
             'name' => 'required',
@@ -92,15 +109,6 @@ class AdminController extends Controller
         $obj->password = Hash::make($request->password);
         $obj->type = 2;
         $obj->save();
-
-        // if($obj->save()){
-        //     $data = new ChiTietQuyen();
-
-        //     $data->admin_id = $obj->id;
-        //     $data->quyen_id = $request->quyen_id;
-        //     $data->coquyen = 1;
-        //     $data->save();
-        // }
 
         if($obj->save()){
             $items = $request->quyen_id;

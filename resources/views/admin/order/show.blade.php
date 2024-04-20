@@ -1,6 +1,6 @@
 @php
     $address = json_decode($order->order_address);
-    $email = \App\Models\User::where('id', $address->user_id)->first();
+    $email = \App\Models\Customer::where('id', $address->user_id)->first();
 
     $city = \App\Models\City::where('id', $address->city_id)->first();
     $district = \App\Models\District::where('id', $address->district_id)->first();
@@ -62,7 +62,9 @@
                               @elseif($order->order_status == 3)
                                   Giao hàng thành công
                               @elseif($order->order_status == 4)
-                                  Đơn hàng bị hủy - Lí do: Người mua {{ $order->reason_customer }}
+                                  Đơn hàng bị hủy - Lí do từ người mua: {{ $order->fail_reason}}
+                              @elseif($order->order_status == 5)
+                                  Giao hàng không thành công - Lí do từ Shipper: {{ $order->fail_reason}}
                               @endif
                           </span></strong>
                           </address>
@@ -70,7 +72,7 @@
                         <div class="row">
                           <div class="col-5">
                             <address>
-                              <strong>Ngày đặt hàng: <span class="text-dark">{{date('d-m-Y ' , strtotime($order->created_at)) }}</span></strong><br>
+                              <strong>Ngày đặt hàng: <span class="text-dark">{{date('d-m-Y' , strtotime($order->created_at)) }}</span></strong><br>
                             </address>
                           </div>
                           <div class="col-5">
@@ -78,7 +80,7 @@
                               <strong>Trạng thái thanh toán: <span class="text-info">
                                         @if ($order->payment_method == 'VNPay')
                                             Đã thanh toán
-                                        @elseif($order->payment_method != 'VNPay' && $order->order_status <3)
+                                        @elseif($order->payment_method != 'VNPay' && $order->order_status != 3)
                                             Thanh toán khi nhận hàng
                                         @elseif($order->payment_method != 'VNPay' && $order->order_status ==3)
                                             Đã thanh toán

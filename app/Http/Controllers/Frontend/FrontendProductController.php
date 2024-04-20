@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FrontEnd;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\KhoHang;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\ReceiptProduct;
@@ -26,6 +27,9 @@ class FrontendProductController extends Controller
         $total_star = ProductReview::where('product_id', $product->id)->avg('star');
         $total_star = round($total_star, 1);
 
-        return view('frontend.pages.product-detail', compact('product', 'sl', 'stars', 'reviews', 'total_star'));
+        $price_min_kho = KhoHang::where('product_id' , $product->id)->min('price');
+
+
+        return view('frontend.pages.product-detail', compact('product', 'sl', 'stars', 'reviews', 'total_star', 'price_min_kho'));
     }
 }

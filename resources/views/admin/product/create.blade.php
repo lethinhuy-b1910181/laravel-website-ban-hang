@@ -49,24 +49,24 @@
                             <label for="">Giá Sản Phẩm<span class="text-danger">(*)</span></label>
                             <input type="number" min="0" class="form-control" name="offer_price" placeholder="Nhập giá bán ra">
                         </div>
-                        <div class="form-group col-4">
-                            <label>Danh mục<span class="text-danger">(*)</span></label>
-                            <select class="form-control selectric" name="category_id">
-                                <option value="">----- Chọn Danh Mục ----- </option>
-                                @foreach ($categories as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        
                         <div class="form-group col-4">
                             <label>Thương hiệu<span class="text-danger">(*)</span></label>
-                            <select class="form-control selectric" name="brand_id">
+                            <select class="form-control select2 brand" name="brand_id">
                                 <option value="">----- Chọn Thương Hiệu ----- </option>
                                 @foreach ($brands as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        
+                        <div class="form-group col-4">
+                            <label>Danh mục<span class="text-danger">(*)</span></label>
+                            <select class="form-control select2 cate" name="category_id">
+                                <option value="">----- Chọn Danh Mục ----- </option>
+                            </select>
+                        </div>
+                        
                     </div>
                     <div class="row">
                         
@@ -165,6 +165,26 @@
             alert("Your browser doesn't support File API!"); //if File API is absent
         }
      });
+
+     $('.brand').on('change',function(){
+          var brand_id = $(this).val();
+          console.log(brand_id);
+          $.ajax({
+              url: "{{ route('admin.get-category', '') }}/" + brand_id,
+              type: 'GET',
+              success:function(response){
+                  var options = '<option value="">Chọn Danh Mục</option>';
+                  $.each(response, function(id, name){
+                    
+                    options += '<option value="'+id+'">'+name+'</option>';
+                    
+                  });
+                  $('.cate').html(options);
+                  console.log($('.cate').html());
+                 
+              }
+          });
+      });
     });
  </script>
  @endpush

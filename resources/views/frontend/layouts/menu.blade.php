@@ -49,9 +49,10 @@
                             @if ($user )
                             @php
                                 $cartCount = \App\Models\CartUser::where('user_id', $user->id)->get();
+                                $wishlist_count = \App\Models\Wishlist::where('user_id', $user->id)->get();
                                 
                             @endphp
-                            <li><a href="{{ route('user.wishlist.index') }}"><i class="fal fa-heart"></i><span>05</span></a></li>
+                            <li><a href="{{ route('user.wishlist.index') }}"><i class="fal fa-heart"></i><span class="wishlist-count">{{ $wishlist_count->count() }}</span></a></li>
                             <li>
                                 <a class="wsus__cart_icon " 
                                 href="{{ route('cart-details') }}" 

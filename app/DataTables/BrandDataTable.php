@@ -3,6 +3,8 @@
 namespace App\DataTables;
 
 use App\Models\Brand;
+use App\Models\Category;
+use App\Models\BrandCategory;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -27,9 +29,7 @@ class BrandDataTable extends DataTable
                 $deleteBtn = "<a href='".route('admin.brand.destroy', $query->id)."'  class='btn btn-danger status-btn ml-2 delete-item'><i class='far fa-trash-alt'></i></a>";
                 return $editBtn.$deleteBtn;
             })
-            ->addColumn('image', function($query){
-                return $img = "<img width='100px' height='80px' src='".asset($query->image)."'> </img>";
-            })
+            
             ->addColumn('status', function($query){
                 if($query->status == 1){
                     $button = '<label class="custom-switch mt-2">
@@ -45,7 +45,21 @@ class BrandDataTable extends DataTable
                 
                 return $button;
             })
-            ->rawColumns(['image', 'action', 'status'])
+            ->addColumn('category', function($query){
+                $product = "<span class='text-warning font-weight-bold'>";
+                $chitetquyens = BrandCategory::where('brand_id', $query->id)->where('status', 1)->get();
+                foreach ($chitetquyens as $item) {
+                    $quyen = Category::find($item->category_id);
+                    if ($quyen) {
+                        $product .= $quyen->name . ", ";
+                    }
+                }
+                // Loại bỏ dấu phẩy cuối cùng nếu có
+                $product = rtrim($product, ', ');
+                $product .= "</span>";
+                return $product;
+            })
+            ->rawColumns(['image', 'action', 'status', 'category'])
             ->setRowId('id');
     }
 
@@ -86,8 +100,8 @@ class BrandDataTable extends DataTable
     {
         return [
             Column::make('id')->width(80)->title('ID')->addClass('text-center')->addClass('align-middle'),
-            Column::make('image')->width(250)->title('Logo')->addClass('text-center')->addClass('align-middle'),
-            Column::make('name')->width(250)->title('Tên Thương Hiệu')->addClass('align-middle'),
+            Column::make('name')->width(250)->title('Tên Thương Hiệu')->addClass('align-middle text-dark font-weight-bold'),
+            Column::make('category')->width(250)->title('Danh Mục Sản Phẩm')->addClass('align-middle'),
             Column::make('status')->title('Hiển thị')->addClass('text-center')->addClass('align-middle'),
             Column::computed('action')
                   ->exportable(false)

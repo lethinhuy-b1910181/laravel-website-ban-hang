@@ -17,5 +17,9 @@ class ColorDetail extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
+    public function khoHang()
+    {
+        return $this->hasMany(KhoHang::class, 'color_id', 'color_id');
+    }
     use HasFactory;
 }

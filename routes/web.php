@@ -41,10 +41,14 @@ use App\Http\Controllers\Backend\StatisticsController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [HomeController::class, 'shop'])->name('home.shop');
+Route::get('/shop/{slug}', [HomeController::class, 'shopDetail'])->name('home.shop.detail');
 Route::post('autocomplete-ajax', [HomeController::class, 'autocomplete_ajax'])->name('home.autocomplete');
 Route::get('/produce', [HomeController::class, 'produce'])->name('home.produce');
 Route::get('/blog', [HomeController::class, 'blog'])->name('home.blog');
 Route::get('/contact', [HomeController::class, 'contact'])->name('home.contact');
+
+Route::get('get-district/{city_id}', [UserAddressController::class, 'getDistrict'])->name('user.get-district');
+Route::get('get-ward/{district_id}', [UserAddressController::class, 'getWard'])->name('user.get-ward');
 
 
 
@@ -116,6 +120,8 @@ Route::middleware(['web', 'permission:product'])
 
         Route::put('product-change-status', [ProductController::class, 'changeStatus'])->name('product.change-status');
         Route::get('multi-image/delete{id}',[ProductController::class, 'MultiImageDelete'])->name('multi-image.delete');
+        Route::put('update-bonus',[ProductController::class, 'updateBonus'])->name('product.update-bonus');
+        Route::get('get-category/{brand_id}', [ProductController::class, 'getCategory'])->name('get-category');
 
         Route::resource('product', ProductController::class);
 });
@@ -190,6 +196,10 @@ Route::middleware(['web',  'superadmin'])
     Route::get('staff-create', [AdminController::class, 'createStaff'])->name('staff.create');
     Route::post('staff-store', [AdminController::class, 'store'])->name('staff.store');
     Route::get('staff-index', [AdminController::class, 'indexStaff'])->name('staff.index');
+    Route::get('customer-index', [AdminController::class, 'indexCustomer'])->name('customer.index');
+    Route::get('customer-create', [AdminController::class, 'createCustomer'])->name('customer.create');
+    Route::post('customer-store', [AdminController::class, 'storeCustomer'])->name('customer.store');
+    Route::get('customer/{id}', [AdminController::class, 'showCustomer'])->name('customer.show');
 
     Route::put('shipper-change-status', [AdminController::class, 'changeStatusShipper'])->name('shipper.change-status');
     Route::get('shipper-create', [AdminController::class, 'createShipper'])->name('shipper.create');
@@ -200,7 +210,9 @@ Route::middleware(['web',  'superadmin'])
     Route::get('login-as/{admin}', [AdminController::class, 'loginAs'])->name('loginAs');
 
     Route::resource('role', RoleController::class); 
-
+    
+    Route::get('coupon/send-mail', [CouponController::class, 'sendMail'])->name('coupon.send.mail');
+    Route::get('coupon/send/{id}', [CouponController::class, 'sendIndex'])->name('coupon.send.index');
     Route::resource('coupon', CouponController::class); 
 
 
@@ -222,6 +234,7 @@ Route::middleware(['web',  'shipper'])
     Route::put('change-status-2/{id}', [ShipperController::class, 'changeStatus2'])->name('chang-status-2');
     Route::put('shipper-change-status', [ShipperController::class, 'changeStatus'])->name('change-status-3');
     Route::put('shipper-change-status-cancel', [ShipperController::class, 'changeStatusCancel'])->name('change-status-cancel');
+    Route::post('fail-order', [ShipperController::class, 'failOrder'])->name('fail-order');
 
     Route::resource('shipper', ShipperController::class); 
 });
@@ -236,7 +249,9 @@ Route::middleware(['web', 'user'])
     Route::put('profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
 
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::get('wishlist-count', [WishlistController::class, 'getWishlistCount'])->name('wishlist.count');
     Route::get('wishlist/add-product', [WishlistController::class, 'addToWishList'])->name('wishlist.add-to-wishlist');
+
 
     Route::get('orders', [UserOrderController::class, 'index'])->name('orders.index');
     Route::get('wait-confirm', [UserOrderController::class, 'indexWaitConfirm'])->name('orders.wait-confirm');
@@ -255,8 +270,6 @@ Route::middleware(['web', 'user'])
 
     Route::get('orders/show/{id}', [UserOrderController::class, 'show'])->name('orders.show');
 
-    Route::get('get-district/{city_id}', [UserAddressController::class, 'getDistrict'])->name('get-district');
-    Route::get('get-ward/{district_id}', [UserAddressController::class, 'getWard'])->name('get-ward');
 
     Route::resource('address',UserAddressController::class);
 
