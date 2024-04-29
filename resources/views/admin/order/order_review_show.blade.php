@@ -1,0 +1,387 @@
+@php
+    $address = json_decode($order->order_address);
+    $email = \App\Models\Customer::where('id', $address->user_id)->first();
+
+    $city = \App\Models\City::where('id', $address->city_id)->first();
+    $district = \App\Models\District::where('id', $address->district_id)->first();
+    $ward = \App\Models\Ward::where('id', $address->ward_id)->first();
+    $shippers = \App\Models\Shipper::where('status', 1)->get();
+
+
+    $coupon = json_decode($order->order_coupon);
+@endphp
+
+@extends('admin.layouts.master')
+
+@section('content')
+
+<section class="section">
+    <div class="section-header">
+      <h1>Phản Hồi Đơn Hàng</h1>
+      
+      <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item"><a href="#">Dashboard</a></div>
+        <div class="breadcrumb-item"><a href="{{ route('admin.order.order-review') }}">Phản Hồi Đơn Hàng</a></div>
+
+        <div class="breadcrumb-item">Chi tiết đơn hàng</div>
+      </div>
+    </div>
+
+    <div class="section-body " >
+      
+      <div class="row">
+        <div class="col-12 col-md-12 col-lg-12">
+          <div class="card">
+        <a class="" 
+          style="font-size: 18px;text-transform: capitalize;padding: 5px 10px;"
+          href="{{ route('admin.order.order-review') }}"><i class="fa fa-angle-left"></i> Trở lại
+        </a>
+
+            <div class="card-header">
+
+              <h4>Chi tiết đơn hàng</h4>
+            </div>
+            <div class="card-body">
+                <div class="section-body">
+                    <div class="invoice">
+
+                      <div class="invoice-print">
+                        <div class="row col-12">
+                          <address>
+                            <strong>Trạng thái đơn hàng: <span class="text-danger">
+                              @if ($order->order_status == 0)
+                                  Đang chờ duyệt
+                              @elseif($order->order_status == 1 && $order->shipper_status == 0)
+                                  Đơn hàng đã được duyệt và Đang chuyển giao cho Shipper
+                              @elseif($order->order_status == 1 && $order->shipper_status == 2)
+                              Đơn hàng đã được duyệt và Đang chuyển giao cho Shipper
+                              @elseif($order->order_status == 1 && $order->shipper_status == 1)
+                                  Shipper đã nhận đơn và đang chuẩn bị giao hàng
+                              @elseif($order->order_status == 2)
+                                  Đang giao hàng
+                              @elseif($order->order_status == 3)
+                                  Giao hàng thành công
+                              @elseif($order->order_status == 4)
+                                  Đơn hàng bị hủy - Lí do từ người mua: {{ $order->fail_reason}}
+                              @elseif($order->order_status == 5)
+                                  Giao hàng không thành công - Lí do từ Shipper: {{ $order->fail_reason}}
+                              @endif
+                          </span></strong>
+                          </address>
+                        </div>
+                        <div class="row">
+                          <div class="col-5">
+                            <address>
+                              <strong>Ngày đặt hàng: <span class="text-dark">{{date('d-m-Y' , strtotime($order->created_at)) }}</span></strong><br>
+                            </address>
+                          </div>
+                          <div class="col-5">
+                          <address>
+                              <strong>Trạng thái thanh toán: <span class="text-info">
+                                        @if ($order->payment_method == 'VNPay')
+                                            Đã thanh toán
+                                        @elseif($order->payment_method != 'VNPay' && $order->order_status != 3)
+                                            Thanh toán khi nhận hàng
+                                        @elseif($order->payment_method != 'VNPay' && $order->order_status ==3)
+                                            Đã thanh toán
+                                        @endif
+                                      </span></strong>
+                            </address>
+                          </div>
+                          <div class="col-4">
+                            
+                          </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                          
+                          <div class="col-lg-12">
+                            <div class="row">
+                              <div class="col-md-7">
+                                <address>
+                                  <strong>Thông tin khách hàng:</strong><br>
+                                    Họ và tên: <b>{{ $address->name }}</b> <br>
+                                    Số điện thoại: <b>{{ $address->phone }}</b><br>
+                                    Email: <b>{{ $email->email }}</b><br>
+                                    
+                                    Địa chỉ giao hàng: <b>{{ $address->address }},  {{ $ward->name }}, {{ $district->name }}, {{ $city->name }}.</b>
+                                </address>
+                              </div>
+
+                              <div class="col-md-5 ">
+                                <address style="text-align: right" >
+                                  <strong>Thông tin người giao hàng:</strong>
+                                  <br>
+                                  @if ($order->shipper_status == 0 || $order->shipper_status == 2 )
+                                      <b class="text-warning">*****Chưa cập nhật****</b>
+                                  @elseif($order->shipper_status==1)
+                                  @php
+                                      $ship = App\Models\Shipper::where('id', $order->shipper_id)->first();
+                                  @endphp
+                                    Họ và tên: <b>{{ $ship->name }}</b> <br>
+                                    Số điện thoại: <b>{{ $ship->phone }}</b><br>
+                                    Email: <b>{{ $ship->email }}</b>
+                                  @endif
+                                  <br>
+                                    
+                                </address>
+                              </div>
+                              
+                            </div>
+                            
+                          </div>
+                        </div>
+                        
+                        <div class="row ">
+                          <div class="col-md-12">
+                            <div class="section-title">Danh sách sản phẩm của đơn hàng</div>
+                            <div class="table-responsive">
+                              <table class="table table-striped table-hover table-md">
+                                <tr>
+                                  <th data-width="40">#</th>
+                                  <th class="text-center">Hình ảnh</th>
+
+                                  <th>Tên sản phẩm</th>
+                                  <th class="text-center">Số lượng</th>
+                                  <th class="text-right">Đơn giá</th>
+                                  <th class="text-right">Thành tiền</th>
+                                </tr>
+                                @php $count = 0; @endphp
+                                    @foreach ($orderDetail as $item)
+                                   
+                                      <tr>
+                                    
+                                        <td>{{ ++$count}}</td>
+                                        <td class="text-center"><img width='80px' height='80px' src="{{ asset($item->product->image) }}"> </img></td>
+                                        <td>
+                                          <div class="j3I_Nh" tabindex="0">{{ $item->product_name }}</div>
+                                          @php
+  
+                                              $color = \App\Models\Color::where('id', $item->color_id)->first();
+                                              
+                                          @endphp
+                                          <div class="rsautk" tabindex="0">Phân loại hàng: {{ $color->name }}</div>
+                                        </td>
+                                        <td class="text-center">{{ $item->qty }}</td>
+                                        <td class="text-right"> {{  number_format($item->unit_price, 0, ',', '.')}} &#8363;</td>
+                                        <td class="text-right"> {{  number_format($item->qty * $item->unit_price , 0, ',', '.')}} &#8363;</td>
+                              
+                                  
+                                    </tr>
+                                @endforeach
+                                
+                              
+                              </table>
+                            </div>
+                            <div class="row mt-4">
+                              <div class="col-lg-7">
+                                <div class="section-title">Phương thức thanh toán</div>
+                                <b class="section-lead text-info">Thanh toán bằng {{ $order->payment_method }}</b>
+                              </div>
+                              <div class="col-lg-5 ">
+                                @php
+                                if($coupon){
+                                    if($coupon->coupon_type ==0){
+                                        $text = '%';
+                                    }else {
+                                        $text = '₫';
+                                    }
+                                }else $text = '';
+                                    
+                                    
+                                @endphp
+                                <div class="invoice-detail-item">
+                                    <div class="invoice-detail-value invoice-detail-value-lg">Tiền hàng : <span class="text-danger text-bold fs-3">{{  number_format($order->sub_total, 0, ',', '.')}} &#8363;</span></div>
+
+                                    
+                                </div>
+                                <div class="invoice-detail-item">
+                                  <div class="invoice-detail-value invoice-detail-value-lg">Mã giảm : <span class="text-danger text-bold fs-3">{{isset($coupon) ?  $coupon->coupon_min_price : 0 }}{{ $text }}</span></div>
+                                  
+                                </div>
+                                <div class="invoice-detail-item">
+                                    <div class="invoice-detail-value invoice-detail-value-lg">Tổng tiền giảm : <span class="text-danger text-bold fs-3">{{isset($coupon) ?  number_format( $order->sub_total - $order->amount, 0, ',', '.') : 0}} &#8363;</span></div>
+
+                                   
+                                  </div>
+                                <hr class="mt-2 mb-2">
+                                <div class="invoice-detail-item">
+                                    <div class="invoice-detail-value invoice-detail-value-lg">Tổng tiền thanh toán : <span class="text-danger text-bold fs-3">{{  number_format($order->amount, 0, ',', '.')}} &#8363;</span></div>
+                                  
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <hr>
+                      @if($order->order_status == 0)
+                          <form  action="{{ route('admin.order.chang-status', $order->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="col-5 mb-3">
+                              <div class="section-title">Chọn người giao hàng</div>
+                              <select class="form-control select2"  name='shipper_id'>
+                                <option value="">Chọn người giao hàng</option>
+                                  @foreach ($shippers as $item)
+                                      <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                  @endforeach
+                              </select>
+                            </div>
+                            <div class="text-md-right ml-3 ">
+                              <div class="float-lg-right  ">
+                                <button class="btn btn-danger btn-icon icon-left"><i class="fas fa-times"></i> Hủy đơn hàng</button>
+
+                              </div>
+                                
+                                <div class="float-lg-right mb-lg-0 mb-3 ml-2 mr-2 ">
+                                  <button onclick="return confirm('Bạn có chắc chắn muốn duyệt đơn hàng không?')" class="  btn btn-info btn-icon icon-left" type="submit" ><i class="fas fa-check"></i> Duyệt đơn hàng</button>
+                                    
+                                </div>
+                              
+
+                            
+                            <button class="btn btn-warning btn-icon icon-left print_invoice"><i class="fas fa-print"></i> Print</button>
+
+                            </div>
+                          </form>
+                        
+                      @elseif($order->order_status == 1)
+                          @if($order->shipper_status ==0 )
+                            @php
+                                $ship = App\Models\Shipper::where('id', $order->shipper_id)->first();
+                            @endphp
+                              <div class="col-5 mb-3">
+                                <div class="section-title">Người giao hàng </div> 
+                                Họ và tên: <b>{{ $ship->name }}</b> <br>
+                                Số điện thoại: <b>{{ $ship->phone }}</b><br>
+                                Email: <b>{{ $ship->email }}</b><br>
+                                Trạng thái: <b class="text-danger">Chờ xác nhận</b>
+                              </div>
+                              <div class="text-md-right ml-3 ">
+                        
+                                <button class="btn btn-warning btn-icon icon-left print_invoice"><i class="fas fa-print"></i> Print</button>
+          
+                                </div>
+                          @elseif($order->shipper_status ==2 )
+                            @php
+                                $ship = App\Models\Shipper::where('id', $order->shipper_id)->first();
+                            @endphp
+                           
+                            <div class="col-12">
+                              <form  action="{{ route('admin.order.chang-status', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="col-6 mb-3">
+                                  <div class="section-title ">Chọn người giao hàng mới</div>
+                                  <div class="row">
+
+                                      
+                                      <select class="form-control select2 col-10"  name='shipper_id'>
+                                        <option value="">Chọn người giao hàng</option>
+                                          @foreach ($shippers as $item)
+                                              <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                          @endforeach
+                                      </select>
+                                      <div class="col-2 " style="padding-top: 6px;">
+                                        <button onclick="return confirm('Xác nhận gửi đơn cho shipper?')" class="  btn btn-info btn-icon icon-left" type="submit" ><i class="fas fa-check"></i> Gửi đơn</button>
+                                          
+                                      </div>
+                                  
+                                    </div>
+
+                                    
+                                  </div>
+                                  
+                                <div class="text-md-right ml-3 ">
+                                  
+                                <button class="btn btn-warning btn-icon icon-left print_invoice"><i class="fas fa-print"></i> Print</button>
+                                </div>
+                              </form>
+                            </div>
+                            
+                          @endif
+                      @elseif($order->order_status == 1)
+                      @php
+                          $ship = App\Models\Shipper::where('id', $order->shipper_id)->first();
+                      @endphp
+                      <div class="col-5 mb-3">
+                        <div class="section-title">Người giao hàng </div> 
+                        Họ và tên: <b>{{ $ship->name }}</b> <br>
+                        Số điện thoại: <b>{{ $ship->phone }}</b><br>
+                        Email: <b>{{ $ship->email }}</b><br>
+                        Trạng thái: <b class="text-danger">Đã nhận đơn</b>
+                      </div>
+
+                      <div class="text-md-left ml-3 ">
+                        
+                      <button class="btn btn-warning btn-icon icon-left print_invoice"><i class="fas fa-print"></i> Print</button>
+
+                      </div>
+                      @elseif($order->order_status == 2)
+                      @php
+                          $ship = App\Models\Shipper::where('id', $order->shipper_id)->first();
+                      @endphp
+                      <div class="col-5 mb-3">
+                        <div class="section-title">Người giao hàng </div> 
+                        Họ và tên: <b>{{ $ship->name }}</b> <br>
+                        Số điện thoại: <b>{{ $ship->phone }}</b><br>
+                        Email: <b>{{ $ship->email }}</b><br>
+                        Trạng thái: <b class="text-danger">Đang giao hàng</b>
+                      </div>
+
+                      <div class="text-md-left ml-3 ">
+                        
+                      <button class="btn btn-warning btn-icon icon-left print_invoice"><i class="fas fa-print"></i> Print</button>
+
+                      </div>
+                      @elseif($order->order_status == 3)
+                      @php
+                          $ship = App\Models\Shipper::where('id', $order->shipper_id)->first();
+                      @endphp
+                      <div class="col-5 mb-3">
+                        <div class="section-title">Người giao hàng </div> 
+                        Họ và tên: <b>{{ $ship->name }}</b> <br>
+                        Số điện thoại: <b>{{ $ship->phone }}</b><br>
+                        Email: <b>{{ $ship->email }}</b><br>
+                        Trạng thái: <b class="text-danger">Giao hàng thành công</b>
+                      </div>
+
+                      <div class="text-md-left ml-3 ">
+                        
+                      <button class="btn btn-warning btn-icon icon-left print_invoice"><i class="fas fa-print"></i> Print</button>
+
+                      </div>
+
+                      @endif
+                       
+                      
+                     
+                    </div>
+                  </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+    
+@endsection
+
+@push('scripts')
+
+<script>
+  $(document).ready(function(){
+      $('.print_invoice').on('click', function(){
+        let printBody = $('.invoice-print');
+        let originalContents = $('body').html();
+        $('body').html(printBody.html());
+        window.print();
+        $('body').html(originalContents);
+      });
+  })
+</script>
+
+@endpush

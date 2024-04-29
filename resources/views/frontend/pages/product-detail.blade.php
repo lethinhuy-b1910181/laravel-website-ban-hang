@@ -71,7 +71,7 @@
                     <div class="col-xl-7 col-md-7 col-lg-7">
                         <div class="wsus__pro_details_text">
                             <a class="title" href="#">{{ $product->name }}</a>
-                            <p class="wsus__stock_area" id="stock_area">Tình trạng: Còn <b id="stock_quantity">{{ $sl }}</b> hàng trong kho </p>
+                            {{-- <p class="wsus__stock_area" id="stock_area">Tình trạng: Còn <b id="stock_quantity">{{ $sl }}</b> hàng trong kho </p> --}}
                             <h4 id="offer_price">{{ number_format($product->offer_price, 0, ',', '.') }}₫</h4>
                        
                             <p class="review">       
@@ -114,14 +114,16 @@
                             <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
                             <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
                             
-                            <form class="shopping-cart-form">
+                            <form class="shopping-cart-form" style="
+                                    margin-top: 20px;
+                                ">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 @php
                                     $colors= App\Models\ColorDetail::where('product_id', $product->id)->get();
                                 @endphp
                                 @if ($colors != NULL)
-                                <p style="padding-bottom: 5px; font-weight: 600">Chọn màu để xem giá:</p>
+                                <p style="padding-bottom: 15px; font-weight: 600">Chọn màu để xem giá:</p>
                                 <div class="box-content">
                                     <ul class="list-variants" id="color-list">
                                         @if($colors->count() > 1)
@@ -238,7 +240,13 @@
                                     <h5>Số lượng :</h5>
                                     <div class="select_number">
                                         <input class="number_area" type="text" name="qty" id="quantity_input" min="1" max="{{ $sl }}" value="1" />
+                                        
                                     </div>
+                                    <p  style="
+                                                font-weight: 400;
+                                                padding-left: 20px;
+                                            " class="wsus__stock_area" id="stock_area"> <b id="stock_quantity">{{ $sl }}</b> sản phẩm có sẵn </p>
+
                                 </div>
                                 <input type="hidden" name="color_id" id="color_id" value="">
                                 <ul class="wsus__button_area">
@@ -256,9 +264,9 @@
                                                     $i = 'fal fa-heart';
                                                 }
                                             @endphp
-                                            <li><a href="#"><i class="{{ $i }}"  class="wishlist"></i></a></li>
+                                            <li><a href="#" class="wishlist" data-id="{{ $product->id }}"><i class="{{ $i }}"  ></i></a></li>
                                         @else
-                                            <li><a href="#"><i class="fal fa-heart"  class="wishlist"></i></a></li>
+                                            <li><a href="#"  class="wishlist" data-id="{{ $product->id }}"><i class="fal fa-heart" ></i></a></li>
                                             
                                         @endif
                                     
@@ -526,172 +534,103 @@
         PRODUCT DETAILS END
     ==============================-->
 
+    
+
 
     <!--============================
         RELATED PRODUCT START
     ==============================-->
-    {{-- <section id="wsus__flash_sell">
+    <section id="wsus__flash_sell">
         <div class="container">
             <div class="row">
                 <div class="col-xl-12">
                     <div class="wsus__section_header">
-                        <h3>Related Products</h3>
-                        <a class="see_btn" href="#">see more <i class="fas fa-caret-right"></i></a>
+                        <h3>Sản Phẩm Liên Quan</h3>
                     </div>
                 </div>
             </div>
             <div class="row flash_sell_slider">
-                <div class="col-xl-3 col-sm-6 col-lg-4">
-                    <div class="wsus__product_item">
-                        <span class="wsus__new">New</span>
-                        <span class="wsus__minus">-20%</span>
-                        <a class="wsus__pro_link" href="product_details.html">
-                            <img src="images/pro3.jpg" alt="product" class="img-fluid w-100 img_1" />
-                            <img src="images/pro3_3.jpg" alt="product" class="img-fluid w-100 img_2" />
-                        </a>
-                        <ul class="wsus__single_pro_icon">
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"><i
-                                        class="far fa-eye"></i></a></li>
-                            <li><a href="#"><i class="far fa-heart"></i></a></li>
-                            <li><a href="#"><i class="far fa-random"></i></a>
-                        </ul>
-                        <div class="wsus__product_details">
-                            <a class="wsus__category" href="#">Electronics </a>
-                            <p class="wsus__pro_rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>(133 review)</span>
-                            </p>
-                            <a class="wsus__pro_name" href="#">hp 24" FHD monitore</a>
-                            <p class="wsus__price">$159 <del>$200</del></p>
-                            <a class="add_cart" href="#">add to cart</a>
+
+                @foreach ($relate_products as $item)  
+                    <div class="col-xl-3 col-sm-6 col-lg-4">
+                        <div class="wsus__product_item item-top-product">
+                        
+                            {{-- <span class="wsus__minus">New</span> --}}
+                            <a class="wsus__pro_link" href="{{ route('product-detail',$item->slug) }}">
+                                <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_1" />
+                                <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_2" />
+                            </a>
+                            <ul class="wsus__single_pro_icon">
+                                <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal-{{ $item->id }}"><i
+                                            class="far fa-eye"></i></a></li>
+                                    @if (Auth::guard('customer')->check())
+                                        @php
+                                        
+                                        $check = \App\Models\Wishlist::where('user_id',Auth::guard('customer')->user()->id)->where('product_id',$item->id)->first();
+                                        if($check){
+                                            $i = 'fas fa-heart text-danger';
+                                        }else {
+                                            $i = 'fal fa-heart';
+                                        }
+                                        @endphp
+                                        <li><a href=""  class="wishlist" data-id="{{ $item->id }}"> <i class="{{ $i }}" ></i></a></li>
+                                    @else
+                                        <li><a href=""  class="wishlist" data-id="{{ $item->id }}"> <i class="fal fa-heart" ></i></a></li>
+                                        
+                                    @endif
+                                <li><a href="#"><i class="far fa-random"></i></a>
+                            </ul>
+                            <div class="wsus__product_details">
+                                <a class="wsus__category" href="#">
+                                    @php
+                                        $temp = App\Models\Category::where('id',  $item->category_id)->first();
+                                    @endphp
+                                    {{ $temp->name}} 
+                                </a>
+                                <p class="wsus__pro_rating">       
+                                    @php
+                                        $colorStar = \App\Models\ProductReview::where( 'product_id', $item->id)->count();
+                                        $star = \App\Models\ProductReview::where( 'product_id', $item->id)->avg('star');
+        
+                                        
+                                        // Lấy trung bình cộng của đánh giá
+                                        $average_star = \App\Models\ProductReview::where('product_id', $item->id)->avg('star');
+                                        
+                                        // Tạo một biến để lưu trữ số sao nguyên
+                                        $full_stars = floor($average_star);
+                                        
+                                        // Kiểm tra xem trung bình có phần thập phân không
+                                        $has_half_star = $average_star - $full_stars > 0;
+                                    @endphp
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if ($i <= $full_stars)
+                                            @php $colorIcon = 'color:#ffcc00;'; @endphp
+                                            <i class="fas fa-star" style="{{ $colorIcon }}"></i>
+                                        @elseif ($has_half_star && $i == $full_stars + 1)
+                                            @php $colorIcon = 'color:#ffcc00;'; @endphp
+                                            <i class="fas fa-star-half" style="{{ $colorIcon }}"></i>
+                                        @else
+                                            @php $colorIcon = 'color:#ccc;'; @endphp
+                                            <i class="far fa-star" style="{{ $colorIcon }}"></i>
+                                        @endif
+                                    @endfor
+                                    
+                                    <span>{{ $colorStar }} Đánh giá</span>
+                                    
+                                </p>
+                                <a class="wsus__pro_name wsus__pro_name-home"  data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $item->name }}" href="{{ route('product-detail',$item->slug) }}">{{ $item->name }}</a>
+                                <p class="wsus__price text-danger"  >{{ number_format($item->offer_price, 0, ',', '.') }}&#8363;</p>
+                            
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-lg-4">
-                    <div class="wsus__product_item">
-                        <span class="wsus__new">New</span>
-                        <a class="wsus__pro_link" href="product_details.html">
-                            <img src="images/pro4.jpg" alt="product" class="img-fluid w-100 img_1" />
-                            <img src="images/pro4_4.jpg" alt="product" class="img-fluid w-100 img_2" />
-                        </a>
-                        <ul class="wsus__single_pro_icon">
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"><i
-                                        class="far fa-eye"></i></a></li>
-                            <li><a href="#"><i class="far fa-heart"></i></a></li>
-                            <li><a href="#"><i class="far fa-random"></i></a>
-                        </ul>
-                        <div class="wsus__product_details">
-                            <a class="wsus__category" href="#">fashion </a>
-                            <p class="wsus__pro_rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>(17 review)</span>
-                            </p>
-                            <a class="wsus__pro_name" href="#">men's casual fashion watch</a>
-                            <p class="wsus__price">$159 <del>$200</del></p>
-                            <a class="add_cart" href="#">add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-lg-4">
-                    <div class="wsus__product_item">
-                        <span class="wsus__minus">-20%</span>
-                        <a class="wsus__pro_link" href="product_details.html">
-                            <img src="images/pro9.jpg" alt="product" class="img-fluid w-100 img_1" />
-                            <img src="images/pro9_9.jpg" alt="product" class="img-fluid w-100 img_2" />
-                        </a>
-                        <ul class="wsus__single_pro_icon">
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"><i
-                                        class="far fa-eye"></i></a></li>
-                            <li><a href="#"><i class="far fa-heart"></i></a></li>
-                            <li><a href="#"><i class="far fa-random"></i></a>
-                        </ul>
-                        <div class="wsus__product_details">
-                            <a class="wsus__category" href="#">fashion </a>
-                            <p class="wsus__pro_rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>(120 review)</span>
-                            </p>
-                            <a class="wsus__pro_name" href="#">men's fashion sholder bag</a>
-                            <p class="wsus__price">$159 <del>$200</del></p>
-                            <a class="add_cart" href="#">add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-lg-4">
-                    <div class="wsus__product_item">
-                        <span class="wsus__new">New</span>
-                        <span class="wsus__minus">-20%</span>
-                        <a class="wsus__pro_link" href="product_details.html">
-                            <img src="images/pro2.jpg" alt="product" class="img-fluid w-100 img_1" />
-                            <img src="images/pro2_2.jpg" alt="product" class="img-fluid w-100 img_2" />
-                        </a>
-                        <ul class="wsus__single_pro_icon">
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"><i
-                                        class="far fa-eye"></i></a></li>
-                            <li><a href="#"><i class="far fa-heart"></i></a></li>
-                            <li><a href="#"><i class="far fa-random"></i></a>
-                        </ul>
-                        <div class="wsus__product_details">
-                            <a class="wsus__category" href="#">fashion </a>
-                            <p class="wsus__pro_rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>(72 review)</span>
-                            </p>
-                            <a class="wsus__pro_name" href="#">men's casual shoes</a>
-                            <p class="wsus__price">$159 <del>$200</del></p>
-                            <a class="add_cart" href="#">add to cart</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-sm-6 col-lg-4">
-                    <div class="wsus__product_item">
-                        <span class="wsus__minus">-20%</span>
-                        <a class="wsus__pro_link" href="product_details.html">
-                            <img src="images/pro4.jpg" alt="product" class="img-fluid w-100 img_1" />
-                            <img src="images/pro4_4.jpg" alt="product" class="img-fluid w-100 img_2" />
-                        </a>
-                        <ul class="wsus__single_pro_icon">
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"><i
-                                        class="far fa-eye"></i></a></li>
-                            <li><a href="#"><i class="far fa-heart"></i></a></li>
-                            <li><a href="#"><i class="far fa-random"></i></a>
-                        </ul>
-                        <div class="wsus__product_details">
-                            <a class="wsus__category" href="#">fashion </a>
-                            <p class="wsus__pro_rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                                <span>(17 review)</span>
-                            </p>
-                            <a class="wsus__pro_name" href="#">men's casual fashion watch</a>
-                            <p class="wsus__price">$159 <del>$200</del></p>
-                            <a class="add_cart" href="#">add to cart</a>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
+               
+                
 
             </div>
         </div>
-    </section> --}}
+    </section>
     <!--============================
         RELATED PRODUCT END
     ==============================-->

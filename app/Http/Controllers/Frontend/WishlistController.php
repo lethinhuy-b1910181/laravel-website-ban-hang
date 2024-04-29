@@ -15,20 +15,23 @@ class WishlistController extends Controller
             
         }
         
-        return view('frontend.pages.wishlist', compact('products'));
+        return view('frontend.account.wishlist.index', compact('products'));
     }
 
     public function addToWishList(Request $request){
         if(Auth::guard('customer')->check()){
             $wishlistCount = Wishlist::where(['product_id'=> $request->id, 'user_id' => Auth::guard('customer')->user()->id])->count(); 
             if($wishlistCount >0){
-                return response(['status'=>'error', 'message'=>'Bạn đã thêm vào trước đó rồi!']);
+                $wishlist =  Wishlist::where(['product_id'=> $request->id, 'user_id' => Auth::guard('customer')->user()->id])->first();
+                $wishlist->delete();
+                
+                return response(['status'=>'success', 'message'=>'Xoá khỏi danh sách yêu thích!']);
             }else{
                 $wishlist = new Wishlist();
                 $wishlist->user_id = Auth::guard('customer')->user()->id;
                 $wishlist->product_id = $request->id;
                 $wishlist->save();
-            return response(['status'=>'success', 'message'=>'Thêm yêu thích!']);
+            return response(['status'=>'success', 'message'=>'Thêm vào danh sách yêu thích yêu thích!']);
 
             }
         }else {

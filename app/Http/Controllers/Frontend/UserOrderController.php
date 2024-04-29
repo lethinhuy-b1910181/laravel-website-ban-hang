@@ -126,7 +126,7 @@ class UserOrderController extends Controller
         $review->order_id = $request->order_id;
         $review->star = $request->star;
         $review->review = $request->review;
-        $review->status = 1;
+        $review->status = 0;
         $review->save();
 
         $order = OrderTotal::where('id' , $request->order_id)->first();

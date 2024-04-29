@@ -10,10 +10,13 @@ use App\DataTables\WaitShipOrderDataTable;
 use App\DataTables\ShippingOrderDataTable;
 use App\DataTables\CanceledOrderDataTable;
 use App\DataTables\CompletedOrderDataTable;
+use App\DataTables\ReviewOrderDataTable;
+use App\DataTables\ReviewProductDataTable;
 
 use App\Models\OrderTotal;
 use App\Models\City;
 use App\Models\Product;
+use App\Models\ProductReview;
 use App\Models\District;
 use App\Models\Ward;
 use App\Models\Color;
@@ -33,6 +36,26 @@ class OrderController extends Controller
     {
         return $dataTable->render('admin.order.index');
     }
+
+    public function orderReview(ReviewOrderDataTable $dataTable)
+    {
+        return $dataTable->render('admin.order.order_review');
+    }
+
+    public function productReview(ReviewProductDataTable $dataTable)
+    {
+        return $dataTable->render('admin.order.product_review');
+    }
+
+    public function productReviewStatus(Request $request){
+        $productReview = ProductReview::findOrFail($request->id);
+        
+        $productReview->status = $request->status ? 1 : 0;
+        $productReview->save();
+
+        return response(['message' => 'Cập nhật trạng thái thành công!']);
+    }
+
 
     public function indexNewOrder(NewOrderDataTable $dataTable)
     {
@@ -168,6 +191,13 @@ class OrderController extends Controller
         $order = OrderTotal::findOrFail($id);
         $orderDetail = OrderProduct::where('order_id', $order->id)->get();
         return view('admin.order.show', compact('order', 'orderDetail'));
+    }
+
+    public function orderReviewShow(string $id)
+    {
+        $order = OrderTotal::findOrFail($id);
+        $orderDetail = OrderProduct::where('order_id', $order->id)->get();
+        return view('admin.order.order_review_show', compact('order', 'orderDetail'));
     }
 
     /**

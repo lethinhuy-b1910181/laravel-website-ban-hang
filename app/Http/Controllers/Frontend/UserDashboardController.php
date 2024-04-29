@@ -7,11 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use File;
 use App\Models\Customer;
+use App\Models\CheckCoupon;
 
 class UserDashboardController extends Controller
 {
     public function index(){
         return view('frontend.dashboard');
+    }
+    public function couponIndex(){
+        $coupons = CheckCoupon::where('user_id', Auth::guard('customer')->user()->id)->orderBy('status', 'desc')->get();
+
+        return view('frontend.account.voucher.index', compact('coupons'));
     }
 
     public function logout(){

@@ -174,7 +174,7 @@ class CouponController extends Controller
                     $temp = new CheckCoupon();
                     $temp->user_id = $vip->id;
                     $temp->coupon_id = $discount->id;
-                    $temp->status = 1;
+                    $temp->status = 0;
                     $temp->save();
                 }
                 $data['email'][] = $vip->email;
@@ -199,7 +199,7 @@ class CouponController extends Controller
                     $temp = new CheckCoupon();
                     $temp->user_id = $vip->id;
                     $temp->coupon_id = $discount->id;
-                    $temp->status = 1;
+                    $temp->status = 0;
                     $temp->save();
                 }
                 $data['email'][] = $vip->email;
@@ -219,15 +219,18 @@ class CouponController extends Controller
                 $title_email = $discount->name;
                 $data = [];
                 foreach($customer as $vip){
+                  
+                    $user_id = Customer::where('email', $vip )->first();
+                  
                     $checkCoupon = CheckCoupon::where([ 
-                        'user_id' => Customer::where('email', $vip )->id,    
+                        'user_id' => $user_id->id,    
                         'coupon_id' => $discount->id, 
                     ])->first();
                     if(!$checkCoupon){
                         $temp = new CheckCoupon();
-                        $temp->user_id = Customer::where('email', $vip )->id;
+                        $temp->user_id = $user_id->id;
                         $temp->coupon_id = $discount->id;
-                        $temp->status = 1;
+                        $temp->status = 0;
                         $temp->save();
                     }
                     $data['email'][] = $vip;
@@ -238,14 +241,17 @@ class CouponController extends Controller
                     $message->from($data['email'], $title_email);
                 });
                 toastr('Mã khuyến mãi đã được gửi khách hàng!', 'success');
+                return redirect()->back();
     
             }
             toastr('Vui lòng chọn  tài khoản khách hàng cần gửi!', 'error');
+            return redirect()->back();
 
             
         }
+        return redirect()->back();
        
-       return redirect()->back();
+       
     }
 
     /**

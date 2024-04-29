@@ -45,16 +45,29 @@
             
           </li>
           
-          {{-- <li class="dropdown {{ setActive(['admin.product-color.*']) }}">
+          <li class="dropdown {{ setActive(['admin.product-color.*']) }}">
             <a href="{{ route('admin.product-color.index') }}" class="nav-link "><i class="icon-size fa fa-magic text-info"></i><span>Màu sắc</span></a>
             
-          </li> --}}
+          </li>
+        
+        @endif
+
+        @if ($user && $user->isSuperAdmin() )
+        <li class="dropdown {{ setActive(['admin.order.order-review']) }}">
+          <a href="{{ route('admin.order.order-review') }}" class="nav-link "><i class="icon-size fa  fa-paper-plane text-info"></i><span>Phản hồi đơn hàng</span></a>
+          
+        </li>
+        <li class="dropdown {{ setActive(['admin.product-review.*']) }}">
+          <a href="{{ route('admin.product-review.index') }}" class="nav-link " ><i class="icon-size fa fa-comments"></i> <span>Đánh giá sản phẩm</span></a>
+        </li>
+     
+      
+        @endif
+        @if ($user && ( $user->isSuperAdmin() || $user->is_receipt()))
         <li class="dropdown {{ setActive(['admin.provider.*']) }}">
           <a href="{{ route('admin.provider.index') }}" class="nav-link "><i class="icon-size fas fa-star text-warning"></i><span>Nhà cung cấp</span></a>
           
         </li>
-        @endif
-        @if ($user && ( $user->isSuperAdmin() || $user->is_receipt()))
         <li class="dropdown {{ setActive(['admin.receipt.*']) }}">
           <a href="{{ route('admin.receipt.index') }}" class="nav-link "><i class="ml-1 icon-size text-success bx bx-detail"></i><span>Nhập kho</span></a>
           

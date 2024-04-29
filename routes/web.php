@@ -25,6 +25,7 @@ use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\CouponController;
 use App\Http\Controllers\Backend\ShipperController;
 use App\Http\Controllers\Backend\StatisticsController;
+use App\Http\Controllers\ChatController;
 
 
 
@@ -50,6 +51,7 @@ Route::get('/contact', [HomeController::class, 'contact'])->name('home.contact')
 Route::get('get-district/{city_id}', [UserAddressController::class, 'getDistrict'])->name('user.get-district');
 Route::get('get-ward/{district_id}', [UserAddressController::class, 'getWard'])->name('user.get-ward');
 
+Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chat-gpt');
 
 
 Route::middleware('auth')->group(function () {
@@ -88,6 +90,8 @@ Route::get('get-product/{id}', [CartController::class, 'getProduct'])->name('get
 
 
 Route::get('apply-coupon', [CartController::class, 'applyCoupon'])->name('apply-coupon'); 
+Route::post('apply-coupon-modal', [CartController::class, 'applyCouponModal'])->name('apply-coupon-modal'); 
+Route::post('check-coupon', [CartController::class, 'checkCoupon'])->name('check-coupon'); 
 Route::get('coupon-calculation', [CartController::class, 'couponCalculation'])->name('coupon-calculation'); 
 
 
@@ -177,8 +181,8 @@ Route::middleware(['web', 'permission:order'])
     Route::get('order/shipping', [OrderController::class, 'indexShipping'])->name('order.shipping');
     Route::get('order/completed', [OrderController::class, 'indexCompleted'])->name('order.completed');
     Route::get('order/canceled', [OrderController::class, 'indexCanceled'])->name('order.canceled');
-
-Route::get('order-count', [OrderController::class, 'getCartCount'])->name('order.order-count'); 
+    
+    Route::get('order-count', [OrderController::class, 'getCartCount'])->name('order.order-count'); 
 
 
     Route::put('order/change-status/{id}', [OrderController::class, 'changeStatus1'])->name('order.chang-status');
@@ -215,7 +219,12 @@ Route::middleware(['web',  'superadmin'])
     Route::get('coupon/send/{id}', [CouponController::class, 'sendIndex'])->name('coupon.send.index');
     Route::resource('coupon', CouponController::class); 
 
+    Route::get('order-review', [OrderController::class, 'orderReview'])->name('order.order-review');
+    Route::get('order-review/{id}', [OrderController::class, 'orderReviewShow'])->name('order.order-review.show');
+    Route::get('product-review', [OrderController::class, 'productReview'])->name('product-review.index');
+    Route::put('product-review/change-status', [OrderController::class, 'productReviewStatus'])->name('product-review.change-status');
 
+   
     Route::post('dashboard/filter-by-date', [StatisticsController::class, 'filterByDate'])->name('dashboard.filter-by-date');
     Route::post('dashboard/filter-by-60date', [StatisticsController::class, 'filterBy60Date'])->name('dashboard.filter-by-60-date');
     Route::post('dashboard/filter', [StatisticsController::class, 'filter'])->name('dashboard.filter');
@@ -247,6 +256,8 @@ Route::middleware(['web', 'user'])
     ->group(function (){
     Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::put('profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
+
+    Route::get('voucher', [UserDashboardController::class, 'couponIndex'])->name('coupon.index');
 
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::get('wishlist-count', [WishlistController::class, 'getWishlistCount'])->name('wishlist.count');

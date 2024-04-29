@@ -4,17 +4,20 @@
             <div class="col-xl-12">
                 <div class="" >
                     <div class="wsus__flash_coundown">
-                        <span>Lượt Xem Nhiều Nhất</span>
+                        <span>Đề Xuất Cho Bạn</span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row flash_sell_slider">
-            @foreach ($view_products as $item)
+            @foreach ($recommendedProducts as $product)
+            @php
+                $item = \App\Models\Product::where('id', $product)->first();
+            @endphp
             <div class="col-xl-3 col-sm-6 col-lg-4">
                 <div class="wsus__product_item">
                     {{-- <span class="wsus__new">New</span> --}}
-                    <span class="wsus__minus">Hot</span>
+                    {{-- <span class="wsus__minus">New</span> --}}
                     <a class="wsus__pro_link" href="{{ route('product-detail',$item->slug) }}">
                         <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_1" />
                         <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_2" />
@@ -24,7 +27,7 @@
                                     class="far fa-eye"></i></a></li>
                             @if (Auth::guard('customer')->check())
                             @php
-                                
+                            
                                 $check = \App\Models\Wishlist::where('user_id',Auth::guard('customer')->user()->id)->where('product_id',$item->id)->first();
                                 if($check){
                                     $i = 'fas fa-heart text-danger';
@@ -32,7 +35,7 @@
                                     $i = 'fal fa-heart';
                                 }
                             @endphp
-                                <li><a href="#"><i class="{{ $i }}" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
+                            <li><a href="#"><i class="{{ $i }}" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
                             @else
                                 <li><a href="#"><i class="fal fa-heart" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
                                 
@@ -79,32 +82,6 @@
                              
                             <span>{{ $colorStar }} Đánh giá</span>
                         </p>
-                        {{-- <p class="wsus__pro_rating">
-                            
-                            @for ($i = 1; $i <= 5; $i++)
-                                
-                                @php
-                                    $colorStar = \App\Models\ProductReview::where( 'product_id', $item->id)->first();
-
-                                    
-                                    if($colorStar){
-                                        $count = $colorStar->count();
-                                        if($i <= $colorStar->star){
-                                            $colorIcon = 'color:#ffcc00;';
-                                        }else{
-                                            $colorIcon = 'color:#ccc;';
-
-                                        }
-                                    }else {
-                                        $colorIcon = 'color:#ccc;'; 
-                                        $count = 0;
-                                    }
-                                @endphp
-                                    <i class="fas fa-star" style="{{  $colorIcon }}"></i>
-                                @endfor
-                            <span>{{ $count }} Đánh giá</span>
-                       
-                        </p> --}}
                         <a class="wsus__pro_name wsus__pro_name-home"  data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $item->name }}" href="{{ route('product-detail',$item->slug) }}">{{ $item->name }}</a>
                         <p class="wsus__price text-danger"  >{{ number_format($item->offer_price, 0, ',', '.') }}&#8363;</p>
                         {{-- <a class="add_cart" href="#">Thêm vào giỏ hàng</a> --}}
@@ -123,7 +100,7 @@
     <!--==========================
       PRODUCT MODAL VIEW START
     ===========================-->
-    @foreach ($view_products as $product)
+    @foreach ($products as $product)
     @php
         
 
@@ -166,11 +143,12 @@
                             </div>
                             <div class="col-xl-6 col-12 col-sm-12 col-md-12 col-lg-6">
                                 <div class="wsus__pro_details_text">
-                                    <a class="title" href="#">{{ $product->name }}</a>
+                                    <a class="title" href="{{ route('product-detail', $product->slug) }}">{{ $product->name }}</a>
                                     <p class="wsus__stock_area">Tình trạng: Còn <b>{{ $tong  }}</b> hàng trong kho </p>
                                 <h4>{{ number_format($product->offer_price, 0, ',', '.') }}&#8363;</h4>
                                     <p class="wsus__stock_area"></p>
                                     <p class="review">
+
                                         @for ($i = 1; $i <= 5; $i++)
                                             
                                             @php
@@ -198,12 +176,11 @@
                                     <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
                                     <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
                                     <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
-
                                     @php
                                     $colors= App\Models\ColorDetail::where('product_id', $product->id)->get();
                                 @endphp
                                 @if ($colors != NULL)
-                                <p style="padding-bottom: 5px; font-weight: 600">Chọn màu để xem giá:</p>
+                                <p style="padding-bottom: 5px; font-weight: 600">Màu sắc:</p>
                                 <div class="box-content">
                                     <ul class="list-variants" id="color-list">
                                         
@@ -249,35 +226,8 @@
                                     
                                 @endif
                                     
+                                    <a href="{{ route('product-detail', $product->slug) }}" class="text-primary">Xem chi tiết sản phẩm</a>
                                     
-                                    <div class="wsus__quentity">
-                                        <h5>Số lượng :</h5>
-                                        <div class="select_number">
-                                            <input class="number_area" type="text" min="1" max="100" value="1" />
-                                        </div>
-                                    </div>
-
-                                    <ul class="wsus__button_area">
-                                        <li><button type="submit" class="add_cart" href="#" >Thêm giỏ hàng</button></li>
-                                        {{-- <li><a class="buy_now" href="#">buy now</a></li> --}}
-                                        @if (Auth::guard('customer')->check())
-                                            @php
-                                            
-                                            $check = \App\Models\Wishlist::where('user_id',Auth::guard('customer')->user()->id)->where('product_id',$product->id)->first();
-                                            if($check){
-                                                $i = 'fas fa-heart text-danger';
-                                            }else {
-                                                $i = 'fal fa-heart';
-                                            }
-                                        @endphp
-                                        <li><a href="#"><i class="{{ $i }}" class="wishlist"></i></a></li>
-                                    @else
-                                    <li><a href="#"><i class="fal fa-heart" class="wishlist"></i></a></li>
-                                        
-                                    @endif
-                                        <li><a href="#"><i class="far fa-random"></i></a></li>
-                                    </ul>
-                               
                                 </div>
                             </div>
                         </div>

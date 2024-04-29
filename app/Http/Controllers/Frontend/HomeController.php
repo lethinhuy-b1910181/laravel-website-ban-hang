@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Frontend;
 
+
+use Phpml\Classification\KNearestNeighbors;
+// use Phpml\Math\Distance;
+use Phpml\Math\Distance\Euclidean;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Slider;
@@ -11,10 +16,93 @@ use App\Models\Category;
 use App\Models\Brand;
 use App\Models\BrandCategory;
 use App\Models\Color;
+use App\Models\Rating;
 use App\Models\ProductReview;
 use Auth;
+use App\Models\UserActivity;
+
+
+
 class HomeController extends Controller
 {
+
+  
+
+    public function recommendPopularProducts()
+    {
+        $popular_products = Product::orderBy('sales', 'desc')->limit(8)->pluck('id')->toArray();
+
+        return $popular_products;
+    }
+
+
+
+    public function findNearestNeighbors($currentUserId)
+    {
+   
+        $allUsersPurchases = Rating::select('user_id', 'product_id')
+            ->where('user_id', '!=', $currentUserId) // Exclude the current user
+            ->get()
+            ->groupBy('user_id');
+        
+        $samples = []; //Lưu trữ user_id và product_id của người dùng đã mua
+        $labels = [];//Lưu trữ user_id của người dùng đã mua
+        foreach ($allUsersPurchases as $uid => $purchases) {
+            $userSamples = [];
+            foreach ($purchases as $purchase) {
+                $userSamples[] = $purchase->product_id;
+            }
+            $samples[] = $userSamples;
+            $labels[] = $uid;
+        }
+
+        $max_length = max(array_map('count', $samples));
+        foreach ($samples as &$sample) {
+            $missing_elements = $max_length - count($sample);
+            for ($i = 0; $i < $missing_elements; $i++) {
+                $sample[] = 0; 
+            }
+        }
+        
+     
+        $classifier = new KNearestNeighbors($k = 3, new Euclidean());
+        $classifier->train($samples, $labels);
+    
+        
+        $userSimilarity = []; //Danh sách người dùng tương tự người dùng hiện tại
+        foreach ($samples as $idx => $sample) {
+              
+
+            $predictedUserId = $labels[$idx];
+            $similarity = $classifier->predict([$sample]);
+            $userSimilarity[$predictedUserId] = $similarity[0]; 
+            
+        }
+        $userPurchases = Rating::where('user_id', $currentUserId)
+    ->pluck('product_id')
+    ->toArray();
+
+        foreach ($userSimilarity as $idx =>$user) {
+
+            $userId = $idx;
+            $userPurchasedProducts = Rating::where('user_id', $userId)->pluck('product_id')->toArray();
+        
+            // Tính số lượng sản phẩm trùng khớp
+            $commonProducts = array_intersect($userPurchases, $userPurchasedProducts);
+            $similary = count($commonProducts);
+        
+            // Lưu độ tương tự vào mảng
+            $similarities[$userId] = $similary;
+        }
+        
+        // Sắp xếp người dùng theo độ tương tự giảm dần
+        arsort($similarities);
+   
+        $nearestNeighbors = array_slice(array_keys($similarities), 0, 3); 
+        return $nearestNeighbors;
+    }
+
+
     public function index(){
 
         $sliders = Slider::where('status', 1)->get();
@@ -23,6 +111,49 @@ class HomeController extends Controller
         $sell_products = Product::orderBy('sales', 'desc')->take(8)->get();
         $category = Category::orderBy('name', 'desc')->get();
        
+        if(Auth::guard('customer')->check()){
+
+            $currentUserId = Auth::guard('customer')->user()->id;
+            $userExists = Rating::where('user_id', $currentUserId)->exists();
+
+            if ($userExists) {
+                $nearestNeighbors = $this->findNearestNeighbors($currentUserId);
+    
+                // Kiểm tra xem có người dùng tương tự hay không
+                if (!empty($nearestNeighbors)) {
+                    // Lấy danh sách sản phẩm đã mua bởi người dùng hiện tại
+                    $currentUserPurchases = Rating::where('user_id', $currentUserId)
+                        ->pluck('product_id')
+                        ->toArray();
+
+                    // Lấy danh sách các sản phẩm được gợi ý
+                    $recommendedProducts = [];
+                    foreach ($nearestNeighbors as $neighborId) {
+                        // Lấy danh sách sản phẩm đã mua bởi người dùng tương tự
+                        $neighborPurchases = Rating::where('user_id', $neighborId)
+                            ->pluck('product_id')
+                            ->toArray();
+
+                        // Loại bỏ các sản phẩm đã mua bởi người dùng hiện tại và loại bỏ các sản phẩm trùng lặp
+                        $recommendedProducts = array_merge($recommendedProducts, array_diff($neighborPurchases, $currentUserPurchases));
+                    }
+
+                    // Loại bỏ sản phẩm đã mua bởi người dùng hiện tại và loại bỏ các sản phẩm trùng lặp
+                    $recommendedProducts = array_unique($recommendedProducts);
+                } else {
+                    $currentUserPurchases = Rating::where('user_id', $currentUserId)
+                    ->pluck('product_id')
+                    ->toArray();
+
+                    $recommendedProducts = $this->recommendPopularProducts();
+                    $recommendedProducts = array_diff($recommendedProducts, $currentUserPurchases);
+                }
+            } else {
+                $recommendedProducts = $this->recommendPopularProducts();
+            }
+        }else {
+            $recommendedProducts = $this->recommendPopularProducts();
+        }
 
         return view('frontend.home.home', 
             compact(
@@ -30,7 +161,8 @@ class HomeController extends Controller
                 'products',
                 'view_products',
                 'category',
-                'sell_products'
+                'sell_products',
+                'recommendedProducts'
             ));
     }
 
@@ -43,6 +175,13 @@ class HomeController extends Controller
         $re_price = '';
         $sort = $request->sort;
         if($request->has('search')){
+            if(Auth::guard('customer')->check()){
+                $activity = new UserActivity();
+                $activity->user_id = Auth::guard('customer')->user()->id;
+                $activity->type = 'search';
+                $activity->search_query = $request->search;
+                $activity->save();
+            }
             $products = Product::where('status', 1)->where(function($query) use ($request){
                 $query->where('name', 'like', '%'.$request->search.'%')
                       ->orWhere('long_description', 'like', '%'.$request->search.'%');  
@@ -271,5 +410,7 @@ class HomeController extends Controller
         return view('frontend.pages.shop_detail', compact('brand', 'category', 'products', 're_cate', 're_price', 're_sort'));
     }
     
-   
+   public function blog(){
+    return view('frontend.pages.blog');
+   }
 }

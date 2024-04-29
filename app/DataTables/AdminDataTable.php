@@ -40,6 +40,7 @@ class AdminDataTable extends DataTable
             return $button;
         })
         
+     
         
         ->addColumn('quyen', function($query){
             $product = "<span>";
@@ -55,7 +56,7 @@ class AdminDataTable extends DataTable
             $product .= "</span>";
             return $product;
         })
-            ->rawColumns([ 'quyen', 'status'])
+            ->rawColumns([ 'quyen', 'status', 'image'])
             ->setRowId('id');
     }
 
@@ -97,7 +98,7 @@ class AdminDataTable extends DataTable
         return [
             Column::make('id')->title('ID')->addClass('text-center')->addClass('align-middle'),
             Column::make('name')->title('Họ tên')->addClass('text-center')->addClass('align-middle'),
-            Column::make('image')->title('Avatar')->addClass('text-center')->addClass('align-middle'),
+            // Column::make('image')->title('Avatar')->addClass('text-center')->addClass('align-middle'),
             Column::make('quyen')->title('Quyền hạn')->addClass('text-center')->addClass('align-middle'),
             Column::make('email')->title('Email')->addClass('text-center')->addClass('align-middle'),
             Column::make('phone')->title('Số điện thoại')->addClass('text-center')->addClass('align-middle'),

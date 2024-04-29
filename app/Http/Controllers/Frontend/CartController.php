@@ -55,7 +55,9 @@ class CartController extends Controller
     public function cartDetails(){
         
         if(Auth::guard('customer')->check()){
-            $cartItems = CartUser::where('user_id', Auth::guard('customer')->user()->id)->latest()->get();
+            $user_id = Auth::guard('customer')->user()->id;
+            $cartItems = CartUser::where('user_id',$user_id  )->latest()->get();
+            $coupons = CheckCoupon::where('user_id', $user_id)->orderBy('status', 'desc')->get();
             $total = 0;
             if(count($cartItems) == 0){
                 Session::forget('coupon');
@@ -64,7 +66,7 @@ class CartController extends Controller
                     $total += $item->product_price * $item->qty;
                    }
             }
-             return view('frontend.pages.cart-detail', compact('cartItems', 'total'));
+             return view('frontend.pages.cart-detail', compact('cartItems', 'total', 'coupons'));
         }
         else {
             return view('login');
@@ -258,6 +260,7 @@ class CartController extends Controller
                         $cart_total = number_format($total, 0, ',', '.'). '₫';
                         $discount_total = number_format($discount, 0, ',', '.'). '₫';
                         $discount_code = $coupon['coupon_min_price'] . '%';
+
                         // $cart_total = number_format($total, 0, ',', '.');
                     return response(['status' => 'success','message' => 'Áp mã thành công!', 'cart_total' => $cart_total, 'discount' => $discount_total, 'discount_code' => $discount_code]);
 
@@ -267,6 +270,8 @@ class CartController extends Controller
                         $cart_total = number_format($total, 0, ',', '.'). '₫';
                         $discount_total = number_format($discount, 0, ',', '.'). '₫';
                         $discount_code = $coupon['coupon_min_price'] . '%';
+
+
                     return response(['status' => 'success','message' => 'Áp mã thành công!', 'cart_total' => $cart_total, 'discount' => $discount_total, 'discount_code' => $coupon['coupon_min_price']]);
                     }
                 }
@@ -288,5 +293,142 @@ class CartController extends Controller
         }
     }
 
+
+    public function checkCoupon(Request $request)
+    {
+        $couponCode = $request->coupon_code;
+        if(Session::get('coupon')){
+            Session::forget('coupon');
+        }
+        if(Auth::guard('customer')->check()){
+            $user_id =  Auth::guard('customer')->user()->id;
+            $total = getCartTotal($user_id);
+            $cart_total = number_format($total, 0, ',', '.').'₫';
+        }
+        
+        // Kiểm tra xem mã giảm giá có tồn tại trong cơ sở dữ liệu không
+        $coupon = Discount::where('code', $couponCode)->first();
+        
+        if ($coupon) {
+            $checkCoupon = CheckCoupon::where([ 
+                'user_id' => Auth::guard('customer')->user()->id,    
+                'coupon_id' => $coupon->id, 
+                'status' => 0
+            ])->first();
+            if($checkCoupon){
+                if($coupon->start_date > date('Y-m-d')){
+                
+                    return response(['status'=>'error', 'message' => 'Mã giảm giá chưa tới ngày bắt đầu!', 'cart_total' => $cart_total]);
+                }else if($coupon->end_date < date('Y-m-d')){
+                    
+                    return response(['status'=>'error', 'message' => 'Mã giảm giá đã hết hạn!', 'cart_total' => $cart_total]);
+                    
+                }else if($coupon->value - $coupon->check_use == 0){
+                    
+                    return response(['status'=>'error', 'message' => 'Mã giảm giá đã dùng hết rồi!', 'cart_total' => $cart_total]);
+    
+                }else {
+                    if($coupon->type == 1){
+                        Session::put('coupon', [
+                            'coupon_id' => $coupon->id,
+                            'coupon_name' => $coupon->name,
+                            'coupon_code' => $coupon->code,
+                            'coupon_type' => 1,
+                            'coupon_min_price' => $coupon->min_price,
+                            'coupon_min_order' => $coupon->min_order,
+                            'coupon_max_price' => $coupon->max_price,
+    
+                        ]);
+                    }else if($coupon->type == 0){
+                        Session::put('coupon', [
+                            'coupon_id' => $coupon->id,
+                            'coupon_name' => $coupon->name,
+                            'coupon_code' => $coupon->code,
+                            'coupon_type' => 0,
+                            'coupon_min_price' => $coupon->min_price,
+                            'coupon_min_order' => $coupon->min_order,
+                            'coupon_max_price' => $coupon->max_price,
+    
+                        ]);
+                    }
+                    return  response(['status'=>'success', 'message' => 'Áp mã thành công!']);
+                }
+            }
+            // Trả về phản hồi thành công nếu mã giảm giá tồn tại
+            return response()->json(['status' => 'success', 'message' => 'Mã giảm giá hợp lệ.']); 
+        } else {
+            // Trả về phản hồi lỗi nếu mã giảm giá không tồn tại
+            return response()->json(['status' => 'error', 'message' => 'Mã giảm giá không hợp lệ.']); 
+        }
+    }
+
+
+    public function applyCouponModal(Request $request)
+    {
+        $couponCode = $request->coupon_code;
+        if(Session::get('coupon')){
+            Session::forget('coupon');
+        }
+        if(Auth::guard('customer')->check()){
+            $user_id =  Auth::guard('customer')->user()->id;
+            $total = getCartTotal($user_id);
+            $cart_total = number_format($total, 0, ',', '.').'₫';
+        }
+        
+        // Kiểm tra xem mã giảm giá có tồn tại trong cơ sở dữ liệu không
+        $coupon = Discount::where('code', $couponCode)->first();
+        
+        if ($coupon) {
+            $checkCoupon = CheckCoupon::where([ 
+                'user_id' => Auth::guard('customer')->user()->id,    
+                'coupon_id' => $coupon->id, 
+                'status' => 0
+            ])->first();
+            if($checkCoupon){
+                if($coupon->start_date > date('Y-m-d')){
+                
+                    return response(['status'=>'error', 'message' => 'Mã giảm giá chưa tới ngày bắt đầu!', 'cart_total' => $cart_total]);
+                }else if($coupon->end_date < date('Y-m-d')){
+                    
+                    return response(['status'=>'error', 'message' => 'Mã giảm giá đã hết hạn!', 'cart_total' => $cart_total]);
+                    
+                }else if($coupon->value - $coupon->check_use == 0){
+                    
+                    return response(['status'=>'error', 'message' => 'Mã giảm giá đã dùng hết rồi!', 'cart_total' => $cart_total]);
+    
+                }else {
+                    if($coupon->type == 1){
+                        Session::put('coupon', [
+                            'coupon_id' => $coupon->id,
+                            'coupon_name' => $coupon->name,
+                            'coupon_code' => $coupon->code,
+                            'coupon_type' => 1,
+                            'coupon_min_price' => $coupon->min_price,
+                            'coupon_min_order' => $coupon->min_order,
+                            'coupon_max_price' => $coupon->max_price,
+    
+                        ]);
+                    }else if($coupon->type == 0){
+                        Session::put('coupon', [
+                            'coupon_id' => $coupon->id,
+                            'coupon_name' => $coupon->name,
+                            'coupon_code' => $coupon->code,
+                            'coupon_type' => 0,
+                            'coupon_min_price' => $coupon->min_price,
+                            'coupon_min_order' => $coupon->min_order,
+                            'coupon_max_price' => $coupon->max_price,
+    
+                        ]);
+                    }
+                    return  response(['status'=>'success', 'message' => 'Áp mã thành công!']);
+                }
+            }
+            // Trả về phản hồi thành công nếu mã giảm giá tồn tại
+            return response()->json(['status' => 'success', 'message' => 'Mã giảm giá hợp lệ.']); 
+        } else {
+            // Trả về phản hồi lỗi nếu mã giảm giá không tồn tại
+            return response()->json(['status' => 'error', 'message' => 'Mã giảm giá không hợp lệ.']); 
+        }
+    }
 
 }

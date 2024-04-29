@@ -118,6 +118,7 @@ class ShipperController extends Controller
         $order = OrderTotal::findOrFail($id);
         $order->order_status = 3;
         $order->save();
+        $user_id = $order->user_id;
 
         if($order->save()){
             $order_date = Carbon::parse($order->created_at)->format('Y-m-d');
@@ -128,6 +129,13 @@ class ShipperController extends Controller
             $so_luong = 0;
             foreach($orderProduct as $item){
                 $product = Product::where('id', $item->product_id)->first();
+                $ratingExists = Rating::where(['user_id' => $user_id, 'product_id' => $product->id])->exists();
+                if(!$ratingExists){
+                    $rating = new Rating;
+                    $rating->user_id = $user_id;
+                    $rating->product_id = $product->id;
+                    $rating->save();
+                }
                 $product->sales += $item->qty;
                 $product->save();
                 $so_luong = $so_luong + $item->qty;
@@ -137,20 +145,24 @@ class ShipperController extends Controller
                 while($sl_mua > 0){
                     $khoHang = KhoHang::where('product_id', $item->product_id)
                     ->where('color_id', $item->color_id)
-                    ->where('quantity', '>', 0)
+                    ->where('quantity', '!=', 0)
                     ->first();
-                     $sl_kho = $khoHang->quantity;
+                     if($khoHang != ''){
+                        $sl_kho = $khoHang->quantity;
                      
                      
-                    while( $sl_kho > 0 && $sl_mua > 0){
-                        $chi_phi =    $chi_phi +$khoHang->price;
-                        $sl_mua  = $sl_mua- 1 ;
-                        $sl_kho = $sl_kho - 1;
+                        while( $sl_kho > 0 && $sl_mua > 0){
+                            $chi_phi =    $chi_phi +$khoHang->price;
+                            $sl_mua  = $sl_mua- 1 ;
+                            $sl_kho = $sl_kho - 1;
+                            
+                        }
+
                         
-                    }
-                    
-                    $khoHang->quantity = $sl_kho ;
-                    $khoHang->save();
+                        $khoHang->quantity = $sl_kho ;
+                        $khoHang->save();
+                     }
+                     else break;
                     
                 }
             }
@@ -202,10 +214,6 @@ class ShipperController extends Controller
                     $message->from($data['email'], $title_email);
                 });
                 
-        
-            
-
-           
             
         }
 

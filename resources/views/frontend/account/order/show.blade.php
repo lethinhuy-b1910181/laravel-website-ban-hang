@@ -393,12 +393,12 @@
                                         <br>
                                         @for ($i = 1; $i <= 5; $i++)
                                            
-                                            <li id="{{ $order->product_id }}-{{ $i }}" data-index_pd="{{ $i }}" data-product_id="{{ $order->product_id }}" data-rating="5" class="ratingProduct ratingProduct-{{ $order->product_id }}"  style="display: inline-block;cursor: pointer; font-size:30px;color:#ffcc00;">&#9733;</li>
+                                            <li id="{{ $order->product_id }}-{{ $i }}" data-index_pd="{{ $i }}" data-product_id="{{ $order->product_id }}" data-color_id="{{ $order->color_id }}" data-rating="5" class="ratingProduct ratingProduct-{{ $order->product_id }}-{{ $order->color_id }}"  style="display: inline-block;cursor: pointer; font-size:30px;color:#ffcc00;">&#9733;</li>
                                             
                                         @endfor
                                         
 
-                                        <span id="ratingProductText" style="
+                                        <span id="ratingProductText-{{ $order->product_id }}-{{ $order->color_id }}" style="
                                             padding-left: 10px;
                                             font-size: .875rem;
                                             color:#ffcc00;
@@ -416,7 +416,7 @@
                                     <input type="hidden" name="order_id" value="{{ $order->order_id }}">
 
                                    
-                                    <input id="starProductInput-{{ $order->product_id}}" type="hidden" name="star" value="5">
+                                    <input id="starProductInput-{{ $order->product_id}}-{{ $order->color_id }}" data-star="starProductInput-{{ $order->product_id}}" type="hidden" name="star" value="5">
 
                                     <br>
                                     <div class="col-12 d-flex justify-content-end">
@@ -640,10 +640,14 @@ document.addEventListener("DOMContentLoaded", function() {
         order_star.addEventListener('click', function() {
             var clickedIndex = parseInt(this.getAttribute('data-index_pd'));
             var productId = this.getAttribute('data-product_id');
-            var starInputId = 'starProductInput-' + productId;
+            var colorId = this.getAttribute('data-color_id');
+            var starInputId = 'starProductInput-' + productId + '-' + colorId;
+            var textInputId = 'ratingProductText-' + productId + '-' + colorId;
+      
             
             // Thay đổi màu sắc của các sao trước và bao gồm sao được nhấp vào
-            var stars = document.querySelectorAll('.ratingProduct-' + productId);
+            var stars = document.querySelectorAll('.ratingProduct-' + productId+'-'+colorId);
+           
             stars.forEach(function(star, index) {
                 if (star.getAttribute('data-product_id') === productId) {
                     if (index < clickedIndex) {
@@ -654,8 +658,34 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
 
+            switch(clickedIndex) {
+                    case 1:
+                        document.getElementById(textInputId).textContent = 'Tệ';
+
+                        break;
+                    case 2:
+                    document.getElementById(textInputId).textContent = 'Không hài lòng';
+                       
+                        break;
+                    case 3:
+                    document.getElementById(textInputId).textContent = 'Bình thường';
+                       
+                        break;
+                    case 4:
+                    document.getElementById(textInputId).textContent = 'Hài lòng';
+                        
+                        break;
+                    case 5:
+                    document.getElementById(textInputId).textContent = 'Tuyệt vời';
+                      
+                        break;
+                }
+
             // Cập nhật giá trị của ô input ẩn
             document.getElementById(starInputId).value = clickedIndex;
+            
+           
+
         });
     });
 });

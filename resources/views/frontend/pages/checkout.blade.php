@@ -10,7 +10,9 @@
                         <ul>
                             <li><a href="
                                 {{ route('home') }}">Trang chủ</a></li>
-                            <li><a href="#">Thanh toán</a></li>
+                            <li><a href="
+                                {{ route('cart-details') }}">Giỏ hàng</a></li>
+                            <li><a href="{{ route('user.checkout') }}">Thanh toán</a></li>
                             
                         </ul>
                     </div>
@@ -30,7 +32,13 @@
                 <div class="row">
                     <div class="col-xl-8 col-lg-7">
                         <div class="wsus__check_form">
-                            <h5>Thông tin người nhận <a href="#" data-bs-toggle="modal" data-bs-target="#exampleModal">Thêm địa chỉ</a></h5>
+                            <h5 style="
+                            display: flex;
+                            justify-content: space-between;
+                        "><span style="text-transform: capitalize; font-size: 18px; font-weight: 500;    align-items: center;display: flex;">Thông tin người nhận</span>  
+                            <a href="#" class="btn btn-info text-light" data-bs-toggle="modal" data-bs-target="#exampleModal">+ Thêm địa chỉ</a>
+
+                            </h5>
                             {{-- <div class="row">
                                 <div class="col-md-6 col-lg-12 col-xl-6">
                                     <div class="wsus__check_single_form">
@@ -244,9 +252,9 @@
                            
                     
                             <div class="wsus__order_details_summery">
-                                <p class=" ">Tiền hàng: <span class="text-danger  fw-bold">{{ number_format(getCartTotal($user_id), 0, ',', '.') }}&#8363;</span></p>
-                                <p>Mã giảm: <span class="text-danger  fw-bold">{{ getDiscountCode() }}</span></p>
-                                <p>Tổng tiền được giảm: <span class="text-danger  fw-bold">{{ number_format(getCartDiscount($user_id), 0, ',', '.') }}&#8363;</span></p>
+                                <p class=" ">Tiền hàng: <span class="text-dark  fw-bold">{{ number_format(getCartTotal($user_id), 0, ',', '.') }}&#8363;</span></p>
+                                <p>Mã giảm: <span class="text-dark  fw-bold">{{ getDiscountCode() }}</span></p>
+                                <p>Tổng tiền được giảm: <span class="text-dark  fw-bold">{{ number_format(getCartDiscount($user_id), 0, ',', '.') }}&#8363;</span></p>
                                 <hr>
                                 <p><b>Tiền thanh toán:</b> <span class="text-danger  fw-bold"><b>{{ number_format(getMainCartTotal($user_id), 0, ',', '.') }}&#8363;</b></span></p>
                             </div>
@@ -267,15 +275,9 @@
                                     Thanh toán bằng VNPay 
                                 </button>
                             </form>
-                            <div class="terms_area">
-                                <div class="form-check">
-                                    <input class="form-check-input agree_term" type="checkbox" value="" id="flexCheckChecked3" checked>
-                                    <label class="form-check-label" for="flexCheckChecked3">
-                                        Bằng cách đặt hàng, bạn đồng ý với<a href="#">Điều khoản sử dụng</a> của cửa hàng.
-                                    </label>
-                                </div>
-                            </div>
+                            
                             <form action="" id="checkOutForm">
+                                @csrf
                                 <input type="hidden" name="address_id" value="" id="address_id">
                             </form>
                             

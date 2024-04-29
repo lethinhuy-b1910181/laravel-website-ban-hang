@@ -25,8 +25,8 @@
               <li><a  class="{{ setActive(['user.dashboard']) }}" href="{{ route('user.dashboard') }}"><i class="far fa-user"></i> Tài khoản của tôi</a></li>
               <li><a  class="{{ setActive(['user.address.*']) }}" href="{{ route('user.address.index') }}"><i class="fal fa-gift-card"></i> Địa chỉ</a></li>
               <li><a class="{{ setActive(['user.orders.*']) }}" href="{{ route('user.orders.index') }}"><i class="fas fa-list-ul"></i> Đơn mua</a></li>
-              <li><a href="#"><i class="far fa-heart"></i> Yêu thích</a></li>
-              <li><a href="#"><i class="far fa-cloud-download-alt"></i> Voucher</a></li>
+              <li><a href="{{ route('user.wishlist.index') }}" class="{{ setActive(['user.wishlist.index']) }}"><i class="far fa-heart"></i> Yêu thích</a></li>
+              <li><a href="{{ route('user.coupon.index') }}" class="{{ setActive(['user.coupon.index']) }}"><i class="far fa-cloud-download-alt"></i> Voucher</a></li>
               <li><a href="#"><i class="far fa-star"></i> Đổi mật khẩu</a></li>
               <li>
                 {{-- <form action="{{ route('logout') }}" method="post">
