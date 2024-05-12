@@ -56,10 +56,10 @@
                                     $t = 'Giao hàng không thành công';
                                     $tl = ' btn btn-sm btn-danger';
                                     $icon = 'bx bx-x-circle';
-                                    
                                 }
                             @endphp
                             <span class="{{ $tl }} text-light"><i class="{{ $icon }}"></i> {{ $t }}</span>
+                                
                         </div>
                         <div class="col-4">
                             <p>Vận chuyển bởi: </p>

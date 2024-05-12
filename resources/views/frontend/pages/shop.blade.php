@@ -42,9 +42,12 @@
                         <div class="accordion" id="accordionExample">
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="headingOne">
+                                    
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        Máy ảnh
+                                        <i class="fa fa-bars pr-2"></i>
+                                        <b style="
+                                        padding-left: 10px;">Danh Mục Máy ảnh</b>
                                     </button>
                                 </h2>
                                 <div id="collapseOne" class="accordion-collapse collapse show"
@@ -147,8 +150,9 @@
                                     @foreach ($products as $item)
                                     <div class="col-xl-3 col-sm-6 col-lg-4">
                                         <div class="wsus__product_item">
-                                            {{-- <span class="wsus__new">New</span> --}}
-                                            {{-- <span class="wsus__minus">New</span> --}}
+                                            @if ($item->product_type == 'new')
+                                            <span class="wsus__minus">New</span>
+                                            @endif
                                             <a class="wsus__pro_link" href="{{ route('product-detail',$item->slug) }}">
                                                 <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_1" />
                                                 <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_2" />
@@ -224,7 +228,7 @@
 
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="v-pills-profile" role="tabpanel"
+                            {{-- <div class="tab-pane fade" id="v-pills-profile" role="tabpanel"
                                 aria-labelledby="v-pills-profile-tab">
                                 <div class="row">
                                     <div class="col-xl-12">
@@ -422,31 +426,16 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-12">
-                    <section id="pagination">
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination">
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Previous">
-                                        <i class="fas fa-chevron-left"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item"><a class="page-link page_active" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Next">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </section>
+                <div class="col-xl-12 text-center " >
+                    <div class="mt-5" style="display:flex; justify-content:center  ">
+                        @if ($products->hasPages())
+                            {{$products->links()}}
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

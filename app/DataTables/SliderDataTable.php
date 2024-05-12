@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\Slider;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class ShipperDataTable extends DataTable
+class SliderDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -23,72 +23,38 @@ class ShipperDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($query){
-                $viewBtn = "<a href='".route('admin.order.show', $query->id)."' class='status-btn ' ><i class='far fa-eye icon-size'></i></a>";
-                return $viewBtn;
-            })
-            ->addColumn('user_id', function($query){
-                $product = "<b >";
-                $product .= $query->user->name ; // Giả sử cột khóa chính của ReceiptDetail là id
-                
-                $product .= "</b>";
-                return $product;
-            })
-            ->addColumn('date', function($query){
-                return date('d-m-Y', strtotime($query->created_at));
-            })
+                $editBtn = "<a href='".route('admin.slider.edit', $query->id)."' class='btn btn-primary'><i class='far fa-edit'></i></a>";
+                $deleteBtn = "<a href='".route('admin.slider.destroy', $query->id)."' class='btn btn-danger ml-2 delete-item'><i class='far fa-trash-alt'></i></a>";
 
-            ->addColumn('amount',  function($query) {
-                
-                $product = "<b class='text-danger'>";
-                $product .= number_format($query->amount, 0, ',', '.') ; // Giả sử cột khóa chính của ReceiptDetail là id
-                
-                $product .= "&#8363;</b>";
-                return $product;
+                return $editBtn.$deleteBtn;
             })
-
-            ->addColumn('payment_method',  function($query) {
-                if($query->payment_method == 'VNPay'){
-                    $product = "<b class='text-success'>";
-                    $product .= $query->payment_method ; // Giả sử cột khóa chính của ReceiptDetail là id
-                    
-                    $product .= "</b>";
+            ->addColumn('image', function($query){
+            return "<img width='150px'; height='80px' src='".asset($query->image)."' ></img>";
+            })
+            
+        
+            ->addColumn('status', function($query){
+                if($query->status == 1){
+                    $button = '<label class="custom-switch mt-2">
+                        <input type="checkbox" checked name="custom-switch-checkbox" data-id="'.$query->id.'" class="custom-switch-input change-status" >
+                        <span class="custom-switch-indicator"></span>
+                    </label>';
                 }else {
-                    $product = "<b class='text-dark'>";
-                    $product .= $query->payment_method ; // Giả sử cột khóa chính của ReceiptDetail là id
-                    
-                    $product .= "</b>";
+                    $button = '<label class="custom-switch mt-2">
+                        <input type="checkbox" name="custom-switch-checkbox" data-id="'.$query->id.'" class="custom-switch-input change-status">
+                        <span class="custom-switch-indicator"></span>
+                    </label>';
                 }
-                
-                return $product;
-            })
- 
-            ->addColumn('order_status',  function($query) {
-                if($query->order_status == 0){
-                    $button = '<span class="btn btn-info btn-sm">Chờ duyệt <i class="fas fa-clock"></i> </span>';
-                }else if($query->order_status == 1){
-                    $button = '<span class="btn btn-primary btn-sm">Chờ vận chuyển <i class="fas fa-hourglass-half"></i></span>';
-                }else if($query->order_status == 2){
-                    $button = '<span class="btn btn-warning btn-sm" >Đang vận chuyển <i class="fas fa-truck"></i></span>';
-                }
-                else if($query->order_status == 3){
-                    $button = '<span class="btn btn-success btn-sm">Hoàn thành <i class="fa fa-check"></i></span>';
-                }
-                else if($query->order_status == 4){
-                    $button = '<span class="btn btn-success btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
-                }
-                
                 return $button;
-                
             })
-            ->rawColumns([ 'amount', 'date', 'user_id', 'payment_method', 'order_status', 'action'])
-
+            ->rawColumns(['action', 'image', 'status'])
             ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(Order $model): QueryBuilder
+    public function query(Slider $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -99,11 +65,11 @@ class ShipperDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('order-table')
+                    ->setTableId('slider-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     //->dom('Bfrtip')
-                    ->orderBy(5,'desc')
+                    ->orderBy(0)
                     ->selectStyleSingle()
                     ->buttons([
                         Button::make('excel'),
@@ -121,19 +87,16 @@ class ShipperDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            
-            Column::make('id')->title('ID')->addClass('text-center')->addClass('align-middle'),
-            Column::make('user_id')->title('Tên khách hàng')->addClass('text-center')->addClass('align-middle'),
-            Column::make('amount')->title('Tổng tiền')->addClass('text-center')->addClass('align-middle'),
-            Column::make('payment_method')->title('Phương thức thanh toán')->addClass('text-center')->addClass('align-middle'),
-            Column::make('date')->title('Ngày đặt')->addClass('text-center')->addClass('align-middle'),
 
-            Column::make('order_status')->title('Trạng thái đơn hàng')->addClass('text-center')->addClass('align-middle'),
-            Column::computed('action')->title('Tùy biến')->addClass('text-center')->addClass('align-middle')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(60)
-                  ->addClass('text-center'),
+            Column::make('id')->title('ID')->addClass('align-middle'),
+            Column::make('image')->title('Hình ảnh')->addClass('align-middle'),
+           Column::make('status')->title('Ẩn/Hiện')->addClass('align-middle'),
+            Column::computed('action')
+            ->title('Tùy biến')->addClass('align-middle')
+            ->exportable(false)
+            ->printable(false)
+            ->width(200)
+            ->addClass('text-center'),
         ];
     }
 
@@ -142,6 +105,6 @@ class ShipperDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Order_' . date('YmdHis');
+        return 'Slider_' . date('YmdHis');
     }
 }

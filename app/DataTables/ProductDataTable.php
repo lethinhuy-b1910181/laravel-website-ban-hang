@@ -14,6 +14,7 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Auth;
 
 class ProductDataTable extends DataTable
 {
@@ -26,11 +27,27 @@ class ProductDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', function($query){
+
                 $viewBtn = "<a href='".route('admin.product.show', $query->id)."' class='status-btn btn btn-info mr-1' ><i class='fas fa-eye  '></i></a>";
                 $editBtn = "<a href='".route('admin.product.edit', $query->id)."'class='status-btn btn btn-warning mr-1' ><i class='fas fa-edit  '></i></a>";
-                $deleteBtn = "<a href='".route('admin.product.destroy', $query->id)."'  class=' status-btn btn btn-danger  delete-item'><i class=' fas fa-trash-alt'></i></a>";
-                return $viewBtn.$editBtn.$deleteBtn;
+
+                if(Auth::guard('admin')->user()->type == 1){
+                    if($query->admin_check == 0){
+                        $checkBtn = "<button data-id='".$query->id."' class='status-btn btn btn-success mr-1 change-status'><i class='bx bx-check-circle'></i></button>";
+
+                    }else{
+                        $checkBtn = '';
+                    }
+                    $deleteBtn = "<a href='".route('admin.product.destroy', $query->id)."'  class=' status-btn btn btn-danger  delete-item'><i class=' fas fa-trash-alt'></i></a>";
+
+                }
+                else {
+                    $deleteBtn = '';
+                    $checkBtn = ''; 
+                }
+                return $checkBtn.$viewBtn.$editBtn.$deleteBtn;
             })
+          
             ->addColumn('image', function($query){
                 return $img = "<img width='80px' height='80px' src='".asset($query->image)."'> </img>";
             })
@@ -66,19 +83,35 @@ class ProductDataTable extends DataTable
                 return $product;
             })
             ->addColumn('status', function($query){
-                if($query->status == 1){
-                    $button = '<label class="custom-switch mt-2">
-                                <input type="checkbox" checked name="custom-switch-checkbox" data-id="'.$query->id.'" class="custom-switch-input change-status">
+               
+                if(Auth::guard('admin')->user()->type == 1){
+                    if($query->status == 1){
+                        $button = '<label class="custom-switch mt-2">
+                                    <input type="checkbox" checked name="custom-switch-checkbox" data-id="'.$query->id.'" class="custom-switch-input change-status">
+                                    <span class="custom-switch-indicator"></span>
+                                </label>';
+                    }else if($query->status == 0){
+                        $button = '<label class="custom-switch mt-2">
+                                <input type="checkbox" name="custom-switch-checkbox" data-id="'.$query->id.'" class="custom-switch-input change-status">
                                 <span class="custom-switch-indicator"></span>
                             </label>';
-                }else if($query->status == 0){
-                    $button = '<label class="custom-switch mt-2">
-                            <input type="checkbox" name="custom-switch-checkbox" data-id="'.$query->id.'" class="custom-switch-input change-status">
-                            <span class="custom-switch-indicator"></span>
-                        </label>';
+                    }
+                    return $button;
+                }else {
+                    if($query->admin_check == 0){
+                        $span = '<span class="text-warning">Chờ duyệt</span>';
+
+                    }else if($query->admin_check == 1) {
+                        if($query->status == 1){    
+                            $span = '<span class="text-success">Đang mở bán</span>';
+
+                        }else if($query->status == 0){
+                            $span = '<span class="text-danger">Ngừng bán</span>';
+                        }
+                    }
+                    return $span;
                 }
                 
-                return $button;
             })
             ->addColumn('offer_price', function($query) {
                 $product = "<b>";
@@ -96,7 +129,7 @@ class ProductDataTable extends DataTable
      */
     public function query(Product $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model::latest()->newQuery();
     }
 
     /**

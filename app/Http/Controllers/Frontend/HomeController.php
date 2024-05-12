@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\Slider;
 use App\Models\Product;
 use App\Models\CartUser;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\BrandCategory;
@@ -79,8 +80,8 @@ class HomeController extends Controller
             
         }
         $userPurchases = Rating::where('user_id', $currentUserId)
-    ->pluck('product_id')
-    ->toArray();
+        ->pluck('product_id')
+        ->toArray();
 
         foreach ($userSimilarity as $idx =>$user) {
 
@@ -106,10 +107,10 @@ class HomeController extends Controller
     public function index(){
 
         $sliders = Slider::where('status', 1)->get();
-        $products = Product::where('product_type', 'new')->get();
-        $view_products = Product::orderBy('view', 'desc')->take(8)->get();
-        $sell_products = Product::orderBy('sales', 'desc')->take(8)->get();
-        $category = Category::orderBy('name', 'desc')->get();
+        $products = Product::where('product_type', 'new')->where('status', 1)->get();
+        $view_products = Product::orderBy('view', 'desc')->where('status', 1)->take(8)->get();
+        $sell_products = Product::orderBy('sales', 'desc')->where('status', 1)->take(8)->get();
+        $category = Category::orderBy('name', 'desc')->where('status', 1)->get();
        
         if(Auth::guard('customer')->check()){
 
@@ -155,8 +156,12 @@ class HomeController extends Controller
             $recommendedProducts = $this->recommendPopularProducts();
         }
 
+        
+        $recentBlogs = Blog::with(['category', 'user'])->where('status',1)->orderBy('id', 'DESC')->take(8)->get();
+
         return view('frontend.home.home', 
             compact(
+                'recentBlogs',
                 'sliders',
                 'products',
                 'view_products',
@@ -214,7 +219,7 @@ class HomeController extends Controller
                 $products->orderBy('view', 'asc');
             }
         
-            $products = $products->get();
+            $products = $products->paginate(24);
         }else{
             $products = Product::where('status', 1);
             if($request->has('brand')){
@@ -282,7 +287,7 @@ class HomeController extends Controller
                 $products->orderBy('view', 'asc');
             }
 
-            $products = $products->get();
+            $products = $products->paginate(24);
 
         }
 
@@ -401,10 +406,10 @@ class HomeController extends Controller
                 $re_sort = 'view';
                 $products->orderBy('view', 'asc');
             }
-            $products = $products->get();
+            $products = $products->paginate(24);
         } else {
             
-            $products = $products->get();
+            $products = $products->paginate(24);
         }
     
         return view('frontend.pages.shop_detail', compact('brand', 'category', 'products', 're_cate', 're_price', 're_sort'));

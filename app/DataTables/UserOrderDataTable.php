@@ -80,6 +80,8 @@ class UserOrderDataTable extends DataTable
                 }
                 else if($query->order_status == 4){
                     $button = '<span class="btn btn-success btn-sm">Đã hủy <i class="bx bx-x-circle"></i></span>';
+                }else if($query->order_status == 5){
+                    $button = '<span class="btn btn-success btn-sm">Giao hàng không thành công<i class="bx bx-x-circle"></i></span>';
                 }
                 
                 return $button;

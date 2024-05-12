@@ -43,6 +43,8 @@ class AdminController extends Controller
         ->whereMonth('created_at', $currentMonth)
         ->where('order_status', 0)
         ->count();
+        $orders = OrderTotal::where('order_status','=', 3)->get();
+        
 
         // Lọc và tính tổng số đơn hàng đang giao (order_status = 2)
         $shippingOrders = OrderTotal::whereYear('created_at', $currentYear)
@@ -60,7 +62,7 @@ class AdminController extends Controller
             ->whereMonth('created_at', $currentMonth)
             ->where('order_status', 4)
             ->count();
-        return view('admin.dashboard', compact('products', 'total_order', 'total_sale', 'total_profit', 'completedOrders', 'shippingOrders', 'newOrders', 'isCurrentMonth', 'canceledOrders'));
+        return view('admin.dashboard', compact('products','orders', 'total_order', 'total_sale', 'total_profit', 'completedOrders', 'shippingOrders', 'newOrders', 'isCurrentMonth', 'canceledOrders'));
     }
 
     public function indexStaff(AdminDataTable $dataTable)

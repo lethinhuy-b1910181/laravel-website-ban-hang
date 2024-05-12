@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <title>Ecommerce Dashboard &mdash; Stisla</title>
+  <title>Camera Shop &mdash; Quản Trị Viên</title>
 
   <!-- General CSS Files -->
   <link rel="stylesheet" href="{{ asset('backend/assets/modules/bootstrap/css/bootstrap.min.css') }}">
@@ -112,6 +112,7 @@
         dayNamesMin: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
         duration:"slow"
       });
+     
       $( "#datepicker2" ).datepicker(
         {
         prevText:"Tháng trước",
@@ -121,6 +122,20 @@
         duration:"slow"
       }
       );
+      $( "#datepicker3" ).datepicker({
+        prevText:"Tháng trước",
+        nextText:"Tháng sau",
+        dateFormat:"yy-mm-dd",
+        dayNamesMin: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+        duration:"slow"
+      });
+      $( "#datepicker4" ).datepicker({
+        prevText:"Tháng trước",
+        nextText:"Tháng sau",
+        dateFormat:"yy-mm-dd",
+        dayNamesMin: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+        duration:"slow"
+      });
     } );
 
     

@@ -107,7 +107,7 @@ class UserOrderController extends Controller
         $review->color_id = $request->color_id;
         $review->star = $request->star;
         $review->review = $request->review;
-        $review->status = 1;
+        $review->status = 0;
         $review->save();
 
         $orderProduct = OrderProduct::where(['order_id' => $request->order_id, 'product_id' => $request->product_id, 'color_id' => $request->color_id])->first();

@@ -14,6 +14,8 @@ use Hash;
 use App\Models\Statistical;
 use App\Models\Customer;
 use App\Models\KhoHang;
+use App\Models\Rating;
+use App\Models\ProductStatistical;
 use Carbon\Carbon;
 use Mail;
 
@@ -123,12 +125,15 @@ class ShipperController extends Controller
         if($order->save()){
             $order_date = Carbon::parse($order->created_at)->format('Y-m-d');
             $statistical = Statistical::where('order_date', $order_date)->first();
-            $orderProduct = OrderProduct::where('order_id', $order->id)->get();
+            $orderProduct = OrderProduct::where('order_id', $id)->get();
 
             $chi_phi = 0;    
             $so_luong = 0;
             foreach($orderProduct as $item){
                 $product = Product::where('id', $item->product_id)->first();
+
+
+                
                 $ratingExists = Rating::where(['user_id' => $user_id, 'product_id' => $product->id])->exists();
                 if(!$ratingExists){
                     $rating = new Rating;
@@ -136,11 +141,11 @@ class ShipperController extends Controller
                     $rating->product_id = $product->id;
                     $rating->save();
                 }
-                $product->sales += $item->qty;
+                $product->sales =$product->sales+ $item->qty;
                 $product->save();
                 $so_luong = $so_luong + $item->qty;
                 
-                $gia_ban = $item->price;
+                $gia_ban = $item->unit_price;
                 $sl_mua = $item->qty;  
                 while($sl_mua > 0){
                     $khoHang = KhoHang::where('product_id', $item->product_id)
@@ -155,6 +160,15 @@ class ShipperController extends Controller
                             $chi_phi =    $chi_phi +$khoHang->price;
                             $sl_mua  = $sl_mua- 1 ;
                             $sl_kho = $sl_kho - 1;
+                            $product_statistical = new ProductStatistical();
+                            $product_statistical->product_id = $item->product_id;
+                            $product_statistical->color_id = $item->color_id;
+                            $product_statistical->date = $order_date;
+                            $product_statistical->sales = $item->unit_price;
+                            $product_statistical->profit = $khoHang->price;
+                            $product_statistical->quantity = 1;
+                            $product_statistical->save();
+
                             
                         }
 
@@ -167,10 +181,12 @@ class ShipperController extends Controller
                 }
             }
            
+
+
             if($statistical){
                 
                 $statistical->sales= $statistical->sales + $order->amount;
-                $statistical->quantity+=$so_luong ;
+                $statistical->quantity=$statistical->quantity+$so_luong ;
                 $statistical->total_order++;
                 $statistical->profit = $statistical->profit + $order->amount - $chi_phi;
               

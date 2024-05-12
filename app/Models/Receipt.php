@@ -12,6 +12,10 @@ class Receipt extends Model
         return $this->belongsToMany(Product::class, 'receipt_products', 'receipt_id', 'product_id');
     }
 
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
     
     use HasFactory;
 }

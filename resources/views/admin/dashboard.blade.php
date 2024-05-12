@@ -126,7 +126,7 @@
     <div class="row ">
       <div class="card col-12 sale-container">
         <div class="card-header sale-title">
-          <span >Thống kê doanh thu</span>
+          <span >Thống kê doanh thu cửa hàng</span>
         </div>
         <div class="card-body">
           <form action="">
@@ -175,9 +175,124 @@
         </div>
       </div>
     </div>
+    {{-- <div class="row">
+      <div class="card col-12 sale-container">
+        <div class="card-header sale-title">
+          <span >Thống kê doanh thu</span>
+        </div>
+        <div class="card-body">
+         
+          @foreach ($orders as $item)
+          <div class="row">
+            {{date('Y-m-d', strtotime($item->created_at))}}
+          </div>
+          @php
+              $products = \App\Models\OrderProduct::where('order_id', $item->id)->get();
+          @endphp
+            @foreach ($products as $i)
+            <div class="row">
+              <div class="col-2">
+                id: {{ $i->product_id }}
+              </div>
+              <div class="col-2">
+                color_id: {{ $i->color_id }}
+              </div>
+              <div class="col-2">
+                sl: {{ $i->qty }}
+              </div>
+              <div class="col-2">
+                giá bán: {{ $i->unit_price }}
+              </div>
+              @php
+                  $receipts = \App\Models\ReceiptProduct::where('product_id', $i->product_id)->where('color_id', $i->color_id)->get();
+              @endphp
+              <div class="col-4">
+                
+                @foreach ($receipts as $r)
+                  <span>Giá nhập: {{ $r->price }}, Số lượng: {{$r->quantity  }}</span>
+                  <br>
+                @endforeach
+                <hr>
+              </div>
+              
+            
+            </div>
+            @endforeach
 
-
+          <hr>
+          @endforeach
+        </div>
+      </div>
+     
+    </div> --}}
     <div class="row ">
+      <div class="card col-12 sale-container">
+        <div class="card-header sale-title">
+          <span >Thống kê doanh thu theo từng sản phẩm</span>
+        </div>
+        <div class="card-body">
+          <form action="">
+            <div class="row col-10">
+             
+                <label >Sản phẩm:</label>
+                <select class=" select2 form-control product_id" name="product_id" id="">
+                  <option >--------Chọn sản phẩm-------</option>
+                  @php
+                      $products = \App\Models\Product::get();
+                  @endphp
+                  @foreach ($products as $item)
+                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                  @endforeach
+                </select>
+            </div>
+            <br>
+            <div class="row">
+             
+              <div class="form-group col-2"  >
+                <label >Từ ngày:</label>
+                <input type="text" class="form-control"  id="datepicker3" >
+              </div>
+              <div class="form-group col-2">
+                <label for="">Đến ngày:</label>
+                <input type="text" class="form-control"  id="datepicker4" >
+              </div>
+
+              <div class=" col-2 sale-btn-submit">
+                <button type="button" id="btn-dashboard-filter-product" class="btn btn-primary">Lọc kết quả</button>
+              </div>
+              <div class="col-3"></div>
+              <div class="col-3">
+                <p>
+                  <span >Lọc theo:</span>
+                  <select class="dashboard-filter-product selectric form-control" name="" id="">
+                    <option >--------Chọn-------</option>
+                    <option value="7ngay">7 ngày qua</option>
+                    <option value="thangtruoc">Tháng trước</option>
+                    <option value="thangnay">Tháng này</option>
+                    <option value="365ngayqua">365 ngày qua</option>
+                  </select>
+                </p>
+              </div>
+            </div>
+          </form>
+          <div class="col-md-12">
+            
+            <h5 style="
+            display: flex;
+            justify-content: center;
+            text-transform: capitalize;
+            color: #003b46;
+        "></h5>
+            <div id="productChart" style="height: 250px">
+            </div>
+           
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{-- <div class="row ">
       <div class="card col-12 sale-container">
         <div class="card-header sale-title">
           <span >Sản phẩm bán chạy nhất | 7 ngày qua </span>
@@ -209,7 +324,7 @@
           </table>
         </div>
       </div>
-    </div>
+    </div> --}}
    
 </section>
 
@@ -219,7 +334,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
     <script>
+    //   $(document).ready(function(){
+    //     $('#btn-dashboard-filter-product').prop('disabled', true); // Khởi đầu, disable nút button
+
+        
+    //     $('#datepicker3, #datepicker4').keyup(function(){
+    //         var from_date = $('#datepicker3').val();
+    //         var to_date = $('#datepicker4').val();
+    //         alert(from_date);
+            
+    //         // Nếu cả hai input đều không có dữ liệu
+    //         if(from_date === '' || to_date === ''){
+    //             $('#btn-dashboard-filter-product').prop('disabled', true); // Disable nút button
+    //         } else {
+    //             $('#btn-dashboard-filter-product').prop('disabled', false); // Enable nút button
+    //         }
+    //     });
+    // });
+    // $(document).ready(function(){
+    //     $('#btn-dashboard-filter').prop('disabled', true); // Khởi đầu, disable nút button
+
+    //     // Kiểm tra dữ liệu của cả hai input
+    //     $('#datepicker, #datepicker2').keyup(function(){
+    //         var from_date = $('#datepicker').val();
+    //         var to_date = $('#datepicker2').val();
+            
+    //         // Nếu cả hai input đều không có dữ liệu
+    //         if(from_date === '' || to_date === ''){
+    //             $('#btn-dashboard-filter-product').prop('disabled', true); // Disable nút button
+    //         } else {
+    //             $('#btn-dashboard-filter-product').prop('disabled', false); // Enable nút button
+    //         }
+    //     });
+    // });
+
       $(document).ready(function(){
+        
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         chart60days();
    
         var chart = new Morris.Bar({
@@ -236,6 +391,7 @@
           barLabel: 'Tên Biểu đồ'
         });
 
+      
         
 
 
@@ -284,7 +440,7 @@
           });
 
         });
-        
+
         $('.dashboard-filter').change(function(){
           var dashboard_value = $(this).val();
           var _token = $('input[name="_token"]').val();
@@ -301,6 +457,118 @@
               var chartTitle = "Biểu đồ thống kê doanh thu " + data[0]['selected_period']; // Sử dụng thông tin về thời gian đã chọn từ dữ liệu trả về
               chart.options.barLabel = chartTitle;
               $('#myfirstchart').prev('h5').text(chartTitle);
+             
+            }
+          });
+        });
+
+        var chartProduct = new Morris.Bar({
+      
+          element: 'productChart',
+
+          barColors: ['#66a5ad', '#003b46', '#eb9f34'],
+          
+          parseTime: false,
+          hideHover: 'auto',
+          xkey: 'period',
+          ykeys: ['sales' , 'profit', 'quantity'],
+          labels: [ 'Doanh thu' , 'Lợi nhuận', 'Số lượng'],
+          barLabel: 'Tên Biểu đồ'
+        });
+
+        $('.product_id').change(function(){
+          $('.dashboard-filter-product').find('option:first-child').prop('selected', true);
+          var product_id = $(this).val();
+          var _token = $('input[name="_token"]').val();
+
+          $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+          // alert(product_id);
+          $.ajax({
+            url: "{{ route('admin.dashboard.filter-by-product') }}",
+            method: "POST",
+            data:{
+              product_id:product_id,
+              _token:_token
+            },
+            success:function(data){
+             
+           
+                var product_name = data.product_name;
+
+                var chartTitle = "Biểu đồ thống kê doanh thu của sản phẩm: " + product_name;
+                $('#productChart').prev('h5').text(chartTitle);
+                chartProduct.options.barLabel = chartTitle;
+
+                chartProduct.setData(data.chart_data);
+             
+                
+            }
+          });
+
+        });
+
+        $('#btn-dashboard-filter-product').click(function(){
+          var _token = $('input[name="_token"]').val();
+          var from_date = $('#datepicker3').val();
+          var to_date = $('#datepicker4').val();
+          var product_id = $('.product_id').val();
+          $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+          $.ajax({
+            url: "{{ route('admin.dashboard.filter-by-date-product') }}",
+            method: "POST",
+            data:{
+              from_date: from_date,
+              to_date:to_date,
+              product_id:product_id,
+              _token:_token
+            },
+            success:function(data){
+              var formatted_from_date = moment(from_date).format('DD-MM-YYYY');
+              var formatted_to_date = moment(to_date).format('DD-MM-YYYY');
+              var chartTitle = "Biểu đồ thống kê doanh thu từ " + formatted_from_date + " đến " + formatted_to_date;
+            chartProduct.options.barLabel = chartTitle;
+
+            $('#productChart').prev('h5').text(chartTitle);
+            chartProduct.options.barLabel = chartTitle;
+              chartProduct.setData(data);
+            }
+          });
+
+        });
+        
+        $('.dashboard-filter-product').change(function(){
+          $('.dashboard-filter-product').find('option:first-child').prop('selected', true);
+
+          var dashboard_value = $(this).val();
+          var product_id = $('.product_id').val();
+          var _token = $('input[name="_token"]').val();
+          $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
+          $.ajax({
+            url: "{{ route('admin.dashboard.filter-product') }}",
+            method: "POST",
+            dataType: "JSON",
+            data: {
+              dashboard_value: dashboard_value,
+              product_id:product_id,
+              _token: _token
+            },
+            success: function(data){
+              chartProduct.setData(data);
+              var chartTitle = "Biểu đồ thống kê doanh thu " + data[0]['selected_period']; // Sử dụng thông tin về thời gian đã chọn từ dữ liệu trả về
+              chartProduct.options.barLabel = chartTitle;
+              $('#productChart').prev('h5').text(chartTitle);
              
             }
           });
@@ -352,6 +620,11 @@
 
 
       $(document).ready(function(){
+              $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
             $('#month-dropdown').on('click', '.dropdown-item', function(event){
                 event.preventDefault(); 
                 var monthId = $(this).parent().data('id');

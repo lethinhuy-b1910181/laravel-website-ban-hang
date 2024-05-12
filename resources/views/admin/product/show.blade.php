@@ -24,7 +24,7 @@
                     <a class="nav-link" id="profile-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false">Chi tiết</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Đánh giá</a>
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Đánh giá ({{ $dem }})</a>
                   </li>
                   
                 </ul>
@@ -71,7 +71,7 @@
                                                             align-items: center;
                                                             display: flex;
                                                         ">
-                                                          <form id="updateBonusForm" action="{{ route('admin.product.update-bonus') }}" method="post">
+                                                          <form  action="{{ route('admin.product.update-bonus') }}" method="post">
                                                             @csrf
                                                             @method('PUT')
                                                             <input type="hidden" name="product_id" value="{{ $item->product_id }}">
@@ -128,10 +128,112 @@
                         </div>
                   </div>
                   <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                    Sed sed metus vel lacus hendrerit tempus. Sed efficitur velit tortor, ac efficitur est lobortis quis. Nullam lacinia metus erat, sed fermentum justo rutrum ultrices. Proin quis iaculis tellus. Etiam ac vehicula eros, pharetra consectetur dui. Aliquam convallis neque eget tellus efficitur, eget maximus massa imperdiet. Morbi a mattis velit. Donec hendrerit venenatis justo, eget scelerisque tellus pharetra a.
+                    <div class="content">
+                      <div class="row">
+                        <div class="form-group col-4">
+                          <label for="">Hình ảnh đại diện sản phẩm<span class="text-danger">(*)</span></label>
+                         
+                          <div class="mt-2 viewimg">
+                              
+                              <img id="preview_avtimg" src="{{ asset($product->image) }}"  >
+                          </div>
+                          
+                          
+                        </div>
+                        <div class="form-group col-8">
+                            <label for="">Hình ảnh chi tiết sản phẩm<span class="text-danger">(*)</span> </label>
+                          
+                            <div class="mt-2 viewmul">
+                                
+                                @foreach ($multiImgs as $item)
+                                    <img id="preview_avtimg"  src="  {{ asset('uploads/'.$item->multi_img) }}" alt="Admin" class=" bg-primary" width="80">
+                                @endforeach
+                            </div>
+                            
+                        
+                            <div class="row viewmul "  id="preview_img">
+                                
+                            </div>
+                            
+                            
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="">Đường link video<span class="text-danger">(*)</span></label>
+                        <input type="text" value="{{ $product->video_link }}" class="form-control" name="video_link" placeholder="Nhập đườnglink video giới thiệu sản phẩm">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Mô tả tóm tắt sản phẩm<span class="text-danger">(*)</span></label>
+                        <textarea  class="form-control"  name="short_description" id="" cols="" rows="50">{{ $product->short_description }}</textarea>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-form-label text-md-right ">Mô tả chi tiết sản phẩm<span class="text-danger">(*)</span></label>
+                        <textarea name="long_description"  class="form-control summernote">{{ $product->long_description }}</textarea>
+                      </div>
+                    </div>
                   </div>
                   <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                    Sed sed metus vel lacus hendrerit tempus. Sed efficitur velit tortor, ac efficitur est lobortis quis. Nullam lacinia metus erat, sed fermentum justo rutrum ultrices. Proin quis iaculis tellus. Etiam ac vehicula eros, pharetra consectetur dui. Aliquam convallis neque eget tellus efficitur, eget maximus massa imperdiet. Morbi a mattis velit. Donec hendrerit venenatis justo, eget scelerisque tellus pharetra a.
+                    
+                    <table class="table col-12 table-bordered">
+                      <thead>
+                        <tr>
+                          <th scope="col">Khách hàng</th>
+                          <th scope="col">Mức đánh giá</th>
+                          <th scope="col">Nội dung</th>
+                          <th scope="col">Trạng thái</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @foreach ($reviews as $item)
+                          @php
+                              $user = App\Models\Customer::where('id', $item->user_id)->first();
+                              $color = $user->name;
+                              if($item->status == 1) $text = 'Hiện';
+                              else $text = 'Ẩn';
+                             
+                          @endphp
+                          <tr>
+                                  <td> 
+                                     
+                                      {{ $color }}
+                                  </td>
+                                  <td>
+                                  @for ($i = 1; $i <= 5; $i++) 
+                                    @php
+                                        if ($i <= $item->star) {
+                                          // Tô màu sao đầy
+                                          $starIcons = "fas fa-star" ;
+                                          $starSt = "color: #ffcc00;";
+                                      } else {
+                                          // Tô màu sao rỗng
+                                          $starIcons = "fas fa-star";
+                                          $starSt = "color: #ccc;";
+    
+                                      }
+                                    @endphp
+                                    <i class="{{$starIcons  }}" style="{{ $starSt }}" ></i>
+
+                                  @endfor
+                                      
+                                  </td>
+
+                                  
+
+                                  <td>
+                                      {{ $item->review }}
+                                  </td>
+
+                                  <td class="d-flex justify-content-center">
+                                    <span class="text-info">{{ $text }}</span>
+                                    
+                                </td>
+                          </tr>
+                         @endforeach
+                      </tbody>
+                  </table>
+                  
                   </div>
 
                   
@@ -147,9 +249,9 @@
 
 @push('scripts')
 
-<script>
+{{-- <script>
   $(document).ready(function() {
-        $('#updateBonusForm').submit(function(e) {
+        $('#updateBonusForm').on('click',function(e) {
             e.preventDefault(); // Ngăn chặn form gửi đi một cách bình thường
 
             var formData = $(this).serialize(); // Chuyển đổi dữ liệu của form thành chuỗi query
@@ -160,8 +262,7 @@
                 url: url,
                 data: formData,
                 success: function(response) {
-                    // Xử lý kết quả thành công
-                    alert('Cập nhật thành công!');
+                  toastr.success(response.message);
                 },
                 error: function(xhr, status, error) {
                     // Xử lý lỗi nếu có
@@ -172,5 +273,5 @@
 
         
     });
-</script>
+</script> --}}
 @endpush

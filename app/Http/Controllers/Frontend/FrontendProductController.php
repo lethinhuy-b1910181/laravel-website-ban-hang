@@ -21,14 +21,16 @@ class FrontendProductController extends Controller
 
 
         $product = Product::with('brand', 'colors', 'productImage', 'category')->where('slug', $slug)->first();
-        $relate_products = Product::where('category_id', $product->category_id)->where('id', '!=', $product->id)->where('status', 1)->get();
+        $relate_products = Product::where('brand_id', $product->brand_id)->where('id', '!=', $product->id)->where('status', 1)->get();
         $sale = ColorDetail::where('product_id', $product->id)->sum('sale');
         $sl = ColorDetail::where('product_id', $product->id)->sum('quantity') - $sale;
 
         $product->view ++;
         $product->save();
         $stars = ProductReview::where('product_id', $product->id)->avg('star');
-        $reviews = ProductReview::where('product_id', $product->id)->where('status', 1)->latest()->get();
+        $reviews = ProductReview::where('product_id', $product->id)->where('status', 1)->latest()->paginate(3);
+        $dem = ProductReview::where('product_id', $product->id)->where('status', 1)->count();
+ 
         $stars = round($stars);
         $total_star = ProductReview::where('product_id', $product->id)->avg('star');
         $total_star = round($total_star, 1);
@@ -44,6 +46,6 @@ class FrontendProductController extends Controller
         }
 
 
-        return view('frontend.pages.product-detail', compact('product', 'sl', 'stars', 'reviews', 'total_star', 'price_min_kho', 'relate_products'));
+        return view('frontend.pages.product-detail', compact('product','dem', 'sl', 'stars', 'reviews', 'total_star', 'price_min_kho', 'relate_products'));
     }
 }

@@ -2,7 +2,7 @@
     <div class=" container">
         <div class="row">
             <div class="col-xl-12">
-                <div class="" >
+                <div class="bd-tl" >
                     <div class="wsus__flash_coundown">
                         <span>Sản phẩm mới ra mắt</span>
                     </div>
@@ -14,7 +14,10 @@
             <div class="col-xl-3 col-sm-6 col-lg-4">
                 <div class="wsus__product_item">
                     {{-- <span class="wsus__new">New</span> --}}
+                    @if ($item->product_type == 'new')
                     <span class="wsus__minus">New</span>
+                    @endif
+                   
                     <a class="wsus__pro_link" href="{{ route('product-detail',$item->slug) }}">
                         <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_1" />
                         <img src="{{ asset($item->image) }}" alt="product" class="img-fluid  img_2" />
@@ -32,9 +35,9 @@
                                     $i = 'fal fa-heart';
                                 }
                             @endphp
-                            <li><a href="#"><i class="{{ $i }}" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
+                            <li><a href="#"  data-id="{{ $item->id }}" class="wishlist"><i class="{{ $i }}"></i></a></li>
                             @else
-                                <li><a href="#"><i class="fal fa-heart" data-id="{{ $item->id }}" class="wishlist"></i></a></li>
+                                <li><a href="#"  data-id="{{ $item->id }}" class="wishlist"><i class="fal fa-heart"></i></a></li>
                                 
                             @endif
                         <li><a href="#"><i class="far fa-random"></i></a>
@@ -48,12 +51,12 @@
                         </a>
                         <p class="wsus__pro_rating">       
                             @php
-                                $colorStar = \App\Models\ProductReview::where( 'product_id', $item->id)->count();
-                                $star = \App\Models\ProductReview::where( 'product_id', $item->id)->avg('star');
+                                $colorStar = \App\Models\ProductReview::where( 'product_id', $item->id)->where('status', 1)->count();
+                                $star = \App\Models\ProductReview::where( 'product_id', $item->id)->where('status', 1)->avg('star');
 
                                 
                                 // Lấy trung bình cộng của đánh giá
-                                $average_star = \App\Models\ProductReview::where('product_id', $item->id)->avg('star');
+                                $average_star = \App\Models\ProductReview::where('product_id', $item->id)->where('status', 1)->avg('star');
                                 
                                 // Tạo một biến để lưu trữ số sao nguyên
                                 $full_stars = floor($average_star);

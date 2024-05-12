@@ -15,9 +15,10 @@
                         <ul>
                             <li><a href="
                                 {{ route('home') }}">Trang chủ</a></li>
-                            <li><a href="#">Sản phẩm</a></li>
-                            <li><a href="#">{{ $product->category->name }}</a></li>
-                            <li><a href="#">{{ $product->name }}</a></li>
+                            <li><a href="{{ route('home.shop') }}">Cửa hàng</a></li>
+                            <li><a href="{{ route('home.shop.detail',  $product->brand->slug) }}">Máy ảnh {{ $product->brand->name }}</a></li>
+                            <li><a>{{ $product->category->name }}</a></li>
+                            <li><a>{{ $product->name }}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -71,14 +72,16 @@
                     <div class="col-xl-7 col-md-7 col-lg-7">
                         <div class="wsus__pro_details_text">
                             <a class="title" href="#">{{ $product->name }}</a>
+                            <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
+                            <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
+                            <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
                             {{-- <p class="wsus__stock_area" id="stock_area">Tình trạng: Còn <b id="stock_quantity">{{ $sl }}</b> hàng trong kho </p> --}}
                             <h4 id="offer_price">{{ number_format($product->offer_price, 0, ',', '.') }}₫</h4>
                        
                             <p class="review">       
                                 @php
-                                    $colorStar = \App\Models\ProductReview::where( 'product_id', $product->id)->count();
+                                    $colorStar = \App\Models\ProductReview::where( 'product_id', $product->id)->where( 'status', 1)->count();
                                     $star = \App\Models\ProductReview::where( 'product_id', $product->id)->avg('star');
-
                                     
                                     // Lấy trung bình cộng của đánh giá
                                     $average_star = \App\Models\ProductReview::where('product_id', $product->id)->avg('star');
@@ -110,9 +113,7 @@
                                 <span> {{ $product->sales }} Đã bán</span>
                             </p>
                            <p class="description">{!! $product->short_description !!}</p>
-                           <p class="brand_model"><span>Mã sản phẩm :</span> #{{ $product->id }}</p>
-                            <p class="brand_model"><span>Thương hiệu :</span> {{ $product->brand->name }}</p>
-                            <p class="brand_model"><span>Danh mục :</span> {{ $product->category->name }}</p>
+                           
                             
                             <form class="shopping-cart-form" style="
                                     margin-top: 20px;
@@ -305,7 +306,7 @@
                                     @endphp
                                     <button class="nav-link " id="pills-contact-tab2" data-bs-toggle="pill"
                                         data-bs-target="#pills-contact2" type="button" role="tab"
-                                        aria-controls="pills-contact2" aria-selected="false">Đánh giá <span class="{{ $dn }}">({{ $reviews->count() }})</span></button>
+                                        aria-controls="pills-contact2" aria-selected="false">Đánh giá <span class="{{ $dn }}">({{ $dem }})</span></button>
                                 </li>
                                 
                                
@@ -347,7 +348,7 @@
                                     <div class="wsus__pro_det_review">
                                         <div class="wsus__pro_det_review_single">
                                             
-                                            @if ($reviews->count() > 0)
+                                            @if ($dem > 0)
                                             {{-- <div class="row " style="
                                             height: 50px;
                                             margin: 20px;
@@ -486,31 +487,12 @@
                                                     </div>
                                                 @endforeach
 
-                                                <div id="pagination">
-                                                    <nav aria-label="Page navigation example">
-                                                        <ul class="pagination">
-                                                            <li class="page-item">
-                                                                <a class="page-link" href="#"
-                                                                    aria-label="Previous">
-                                                                    <i class="fas fa-chevron-left"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="page-item"><a
-                                                                    class="page-link page_active" href="#">1</a>
-                                                            </li>
-                                                            <li class="page-item"><a class="page-link"
-                                                                    href="#">2</a></li>
-                                                            <li class="page-item"><a class="page-link"
-                                                                    href="#">3</a></li>
-                                                            <li class="page-item"><a class="page-link"
-                                                                    href="#">4</a></li>
-                                                            <li class="page-item">
-                                                                <a class="page-link" href="#" aria-label="Next">
-                                                                    <i class="fas fa-chevron-right"></i>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </nav>
+                                                <div class="col-xl-12 text-center " >
+                                                    <div class="mt-5" style="display:flex; justify-content:center  ">
+                                                        @if ($reviews->hasPages())
+                                                            {{$reviews->links()}}
+                                                        @endif
+                                                    </div>
                                                 </div>
                                         
                                                                 

@@ -1,8 +1,9 @@
 <div class="header__top">
     <div class="container">
         <div class="header__top--right">
+          
             <ul class="header__top__nav">
-               
+                
                 @php
                 $check = \Illuminate\Support\Facades\Auth::guard('customer')->check();
 

@@ -38,6 +38,10 @@ class Product extends Model
     {
         return $this->hasMany(ReceiptDetail::class);
     }
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
     use HasFactory;
 
     

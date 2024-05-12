@@ -11,6 +11,7 @@ use App\Http\Controllers\Frontend\UserDashboardController;
 use App\Http\Controllers\Frontend\UserAddressController;
 use App\Http\Controllers\Frontend\UserOrderController;
 use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\FrontendBlogController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\SliderController;
 use App\Http\Controllers\Backend\CategoryController;
@@ -25,6 +26,9 @@ use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\CouponController;
 use App\Http\Controllers\Backend\ShipperController;
 use App\Http\Controllers\Backend\StatisticsController;
+use App\Http\Controllers\Backend\BlogCategoryController;
+use App\Http\Controllers\Backend\BlogController;
+use App\Http\Controllers\Backend\BlogCommentController;
 use App\Http\Controllers\ChatController;
 
 
@@ -47,6 +51,13 @@ Route::post('autocomplete-ajax', [HomeController::class, 'autocomplete_ajax'])->
 Route::get('/produce', [HomeController::class, 'produce'])->name('home.produce');
 Route::get('/blog', [HomeController::class, 'blog'])->name('home.blog');
 Route::get('/contact', [HomeController::class, 'contact'])->name('home.contact');
+
+Route::get('blog-details/{slug}', [FrontendBlogController::class, 'blogDetails'])->name('blog-details');
+Route::get('blog', [FrontendBlogController::class, 'blog'])->name('blog');
+
+
+Route::get('blog-comments', [BlogCommentController::class, 'index'])->name('blog-comments.index');
+Route::delete('blog-comments/{id}/destory', [BlogCommentController::class, 'destory'])->name('blog-comments.destory');
 
 Route::get('get-district/{city_id}', [UserAddressController::class, 'getDistrict'])->name('user.get-district');
 Route::get('get-ward/{district_id}', [UserAddressController::class, 'getWard'])->name('user.get-ward');
@@ -161,7 +172,15 @@ Route::middleware(['web', 'permission:blog'])
          /** Profile Route */
          Route::get('profile', [AdminController::class , 'profile'])->name('profile');
          /**End Profile Route */
+    /** Start Slider Route */
+    Route::put('change-status', [BlogCategoryController::class, 'changeStatus'])->name('blog-category.status-change');
 
+    Route::resource('blog-category', BlogCategoryController::class);
+
+    Route::put('blog-change-status', [BlogController::class, 'changeStatus'])->name('blog.status-change');
+
+    Route::resource('blog', BlogController::class);
+    /** End Slider Route */
     /** Start Slider Route */
     Route::put('slider-change-status', [SliderController::class, 'changeStatus'])->name('slider.change-status');
     Route::resource('slider', SliderController::class);
@@ -230,6 +249,13 @@ Route::middleware(['web',  'superadmin'])
     Route::post('dashboard/filter', [StatisticsController::class, 'filter'])->name('dashboard.filter');
     Route::post('dashboard/total-order', [StatisticsController::class, 'totalOrder'])->name('dashboard.total-order');
 
+
+    Route::post('dashboard/filter-by-date-product', [StatisticsController::class, 'filterByDateProduct'])->name('dashboard.filter-by-date-product');
+    Route::post('dashboard/filter-by-product', [StatisticsController::class, 'filterByProduct'])->name('dashboard.filter-by-product');
+    Route::post('dashboard/filter-product', [StatisticsController::class, 'filterProduct'])->name('dashboard.filter-product');
+
+
+
 });
 
 
@@ -281,7 +307,7 @@ Route::middleware(['web', 'user'])
 
     Route::get('orders/show/{id}', [UserOrderController::class, 'show'])->name('orders.show');
 
-
+    Route::post('blog-comment', [FrontendBlogController::class, 'comment'])->name('blog-comment');
     Route::resource('address',UserAddressController::class);
 
     Route::get('checkout', [CheckOutController::class, 'index'])->name('checkout');

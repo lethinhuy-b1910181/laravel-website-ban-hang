@@ -39,7 +39,7 @@ class UserDashboardController extends Controller
 
         if(Auth::guard('customer')->attempt($credential)) {
             toastr()->success('Đăng nhập thành công!');
-            return redirect()->route('user.dashboard');
+            return redirect()->route('home');
         }else {
             toastr()->error('Thông tin đăng nhập không chính xác!');
 

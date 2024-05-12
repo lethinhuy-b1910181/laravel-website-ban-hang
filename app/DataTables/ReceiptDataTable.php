@@ -13,6 +13,7 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Auth;
 
 class ReceiptDataTable extends DataTable
 {
@@ -30,8 +31,13 @@ class ReceiptDataTable extends DataTable
                 return $viewBtn;
             }else if($query->status == 0){
                 $viewBtn = "<a href='".route('admin.receipt.show',  $query->id)."' class='status-btn btn btn-primary mr-1'><i class='far fa-eye '></i></a>";
-                $editBtn = "<button data-id='".$query->id."' class='status-btn btn btn-success mr-1 change-status'><i class='bx bx-check-circle'></i></button>";
+                if(Auth::guard('admin')->user()->type == 1){
+                    $editBtn = "<button data-id='".$query->id."' class='status-btn btn btn-success mr-1 change-status'><i class='bx bx-check-circle'></i></button>";
 
+                }
+                else {
+                    $editBtn = ''; 
+                }
                 $deleteBtn = "<a href='".route('admin.receipt.destroy', $query->id)."' class='delete-item status-btn btn btn-danger mr-1'><i class='far fa-trash-alt'></i></a>";
                 return $viewBtn.$editBtn.$deleteBtn;
             }
@@ -83,7 +89,7 @@ class ReceiptDataTable extends DataTable
      */
     public function query(Receipt $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->latest()->newQuery();
     }
 
     /**

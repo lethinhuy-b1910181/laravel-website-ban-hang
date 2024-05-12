@@ -5,7 +5,7 @@
 <div class="main-sidebar sidebar-style-2">
     <aside id="sidebar-wrapper">
       <div class="sidebar-brand">
-        <a href="index.html">Stisla</a>
+        <a href="index.html">Quản Trị Viên</a>
       </div>
       <div class="sidebar-brand sidebar-brand-sm">
         <a href="index.html">St</a>
@@ -98,20 +98,15 @@
         </li>
         @endif
         @if ($user && ( $user->isSuperAdmin() || $user->is_blog()))
-        <li><a class="nav-link" href="blank.html"><i class="icon-size far fa-edit text-info"></i> <span>Bài viết</span></a></li>
-        <li class="dropdown {{ setActive(['admin.slider.*']) }}">
-          <a href="#" class="nav-link has-dropdown"><i class="icon-size  fas fa-th text-primary"></i> <span>Cài đặt giao diện</span></a>
-          <ul class="dropdown-menu">
-            <li class="{{ setActive(['admin.slider.*']) }}"><a class="nav-link" href="{{ route('admin.slider.index') }}">Slider</a></li>
-            <li><a class="nav-link" href="bootstrap-badge.html">Badge</a></li>
-            <li><a class="nav-link" href="bootstrap-breadcrumb.html">Breadcrumb</a></li>
-            
-          </ul>
-        </li>
+        <li  class="dropdown {{ setActive(['admin.blog-category.*']) }}"><a class="nav-link" href="{{ route('admin.blog-category.index') }}"><i class="icon-size far fa-edit text-info"></i> <span>Danh mục bài viết</span></a></li>
+       
+        <li  class="dropdown {{ setActive(['admin.blog.*']) }}"><a class="nav-link" href="{{ route('admin.blog.index') }}"><i class="icon-size far fa-edit text-info"></i> <span>Bài viết</span></a></li>
+        <li  class="dropdown {{ setActive(['admin.slider.*']) }}"><a class="nav-link" href="{{ route('admin.slider.index') }}"><i class="icon-size fas fa-th text-primary"></i> <span>Slider</span></a></li>
+  
         @endif
         
         
-    </ul>
+      </ul>
 
-          </aside>
+    </aside>
   </div>

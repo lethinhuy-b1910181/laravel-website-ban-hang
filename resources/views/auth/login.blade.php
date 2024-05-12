@@ -49,7 +49,7 @@
                                         <p class="social_text">Đăng nhập bằng mạng xã hội</p>
                                         <ul class="wsus__login_link">
                                             <li><a href="#"><i class="fab fa-google"></i></a></li>
-                                            <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                            {{-- <li><a href="#"><i class="fab fa-facebook-f"></i></a></li> --}}
                                         </ul>
                                     </form>
                                 </div>
@@ -75,13 +75,14 @@
                                             <i class="fas fa-key"></i>
                                             <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Nhập lại mật khẩu">
                                         </div>
-                                        <div class="wsus__login_save">
+                                        <br>
+                                        {{-- <div class="wsus__login_save">
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox"
                                                     id="flexSwitchCheckDefault03">
                                                 <label class="form-check-label" for="flexSwitchCheckDefault03">Bằng việc đăng kí, bạn đã đồng ý với Shop về Điều khoản dịch vụ & Chính sách bảo mật  </label>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <button class="common_btn" type="submit">ĐĂNG KÝ</button>
                                     </form>
                                 </div>

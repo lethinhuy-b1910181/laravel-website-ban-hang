@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\DataTables\CategoryDataTable;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Product;
 use Str;
 
 class CategoryController extends Controller
@@ -94,9 +95,14 @@ class CategoryController extends Controller
     public function destroy(string $id)
     {
         $category =  Category::findOrFail($id);
-        $category->delete();
+        $products = Product::where('brand_id', $category->id)->get();
+        if($products->count() == 0){
+            $category->delete();
+            return response(['status' => 'success' , 'message' => 'Xóa thành công!']);
+        }else{
+            return response(['status' => 'error' , 'message' => 'Còn tồn tại sản phẩm thuộc danh mục này!']);
 
-        return response(['status' => 'success' , 'message' => 'Xóa thành công!']);
+        }
     }
 
     public function changeStatus(Request $request){
@@ -105,6 +111,12 @@ class CategoryController extends Controller
         $category->status = $request->status ? 1 : 0;
      
         $category->save();
+        $products = Product::where('category_id', $request->id)->get();
+        foreach($products as $item){
+            $product =  Product::where('id', $item->id)->first();
+            $product->status =$request->status ? 1 : 0;
+            $product->save();
+        }
 
         return response(['message' => 'Cập nhật trạng thái thành công!']);
     }

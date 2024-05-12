@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->integer('admin_id')->nullable();
             $table->string('name');
             $table->string('slug');
             $table->text('image');
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->integer('view')->default(0);
             $table->string('product_type')->nullable();
             $table->boolean('status');
+            $table->integer('admin_check')->default(0);
 
 
             $table->timestamps();

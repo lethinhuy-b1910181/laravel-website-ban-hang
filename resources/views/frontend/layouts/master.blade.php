@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <title>Sazao || e-Commerce HTML Template</title>
+    <title>Camera Shop</title>
     <link rel="icon" type="image/png" href="{{asset('frontend/images/favicon.png')}}">
     <link rel="stylesheet" href="{{asset('frontend/css/all.min.css')}}">
     <link rel="stylesheet" href="{{asset('frontend/css/bootstrap.min.css')}}">
@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{{asset('frontend/css/responsive.css')}}">
 
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    
+    <!--Start of Fchat.vn--><script type="text/javascript" src="https://cdn.fchat.vn/assets/embed/webchat.js?id=663e23d4d8f27413fc3e4423" async="async"></script><!--End of Fchat.vn-->
     <!-- <link rel="stylesheet" href="css/rtl.css"> -->
 </head>
 
@@ -52,7 +52,7 @@
     <!--============================
         MAIN MENU END
     ==============================-->
-    @include('frontend.layouts.header')
+    {{-- @include('frontend.layouts.header') --}}
     <!--==========================
         POP UP START
     ===========================-->
@@ -93,19 +93,20 @@
     <!--============================
         FOOTER PART START
     ==============================-->
+    {{-- <iframe src="https://chat.socialintents.com/c/chat-1714567044771" width="100%" style="height:100%;min-height:550px;" frameborder="0"></iframe> --}}
     <footer class="footer_2">
         <div class="container">
             <div class="row justify-content-between">
                 <div class="col-xl-3 col-sm-7 col-md-6 col-lg-3">
                     <div class="wsus__footer_content">
-                        <a class="wsus__footer_2_logo" href="#">
-                            <img src="" alt="logo">
+                        <a class="wsus__footer_2_logo" href="{{ route('home') }}">
+                            <img src="{{ asset('frontend/images/logo.png') }}" alt="logo">
                         </a>
                         <a class="action" href="callto:+8896254857456"><i class="fas fa-phone-alt"></i>
-                            +8896254857456</a>
+                            +84 909 688 485</a>
                         <a class="action" href="mailto:example@gmail.com"><i class="far fa-envelope"></i>
-                            example@gmail.com</a>
-                        <p><i class="fal fa-map-marker-alt"></i> San Francisco City Hall, San Francisco, CA</p>
+                            shopcamera243@gmail.com</a>
+                        <p><i class="fal fa-map-marker-alt"></i> Ninh Kiều, TP. Cần Thơ</p>
                         <ul class="wsus__footer_social">
                             <li><a class="facebook" href="#"><i class="fab fa-facebook-f"></i></a></li>
                             <li><a class="twitter" href="#"><i class="fab fa-twitter"></i></a></li>
@@ -117,45 +118,34 @@
                 </div>
                 <div class="col-xl-2 col-sm-5 col-md-4 col-lg-2">
                     <div class="wsus__footer_content">
-                        <h5>Company</h5>
+                        <h5>VỀ CHÚNG TÔI</h5>
                         <ul class="wsus__footer_menu">
-                            <li><a href="#"><i class="fas fa-caret-right"></i> About Us</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Team Member</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Career</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Contact Us</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Affilate</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Order History</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Team Member</a></li>
+                            <li><a href="{{ route('home') }}"><i class="fas fa-caret-right"></i>Trang chủ</a></li>
+                            <li><a href="{{ route('home.shop') }}"><i class="fas fa-caret-right"></i>Cửa hàng</a></li>
+                            <li><a href="#"><i class="fas fa-caret-right"></i>Tin tức</a></li>
+                            <li><a href="#"><i class="fas fa-caret-right"></i>Liên hệ</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-xl-2 col-sm-5 col-md-4 col-lg-2">
                     <div class="wsus__footer_content">
-                        <h5>Company</h5>
+                        <h5>CHÍNH SÁCH</h5>
                         <ul class="wsus__footer_menu">
-                            <li><a href="#"><i class="fas fa-caret-right"></i> About Us</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Team Member</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Career</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Contact Us</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Affilate</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Order History</a></li>
-                            <li><a href="#"><i class="fas fa-caret-right"></i> Team Member</a></li>
+                            <li><a href="#"><i class="fas fa-caret-right"></i>Chính sách thanh toán</a></li>
+                            <li><a href="#"><i class="fas fa-caret-right"></i>Chính sách bảo mật</a></li>
+                            <li><a href="#"><i class="fas fa-caret-right"></i>Chính sách bảo hành</a></li>
+                            <li><a href="#"><i class="fas fa-caret-right"></i>Chính sách đổi trả</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-xl-4 col-sm-7 col-md-8 col-lg-5">
                     <div class="wsus__footer_content wsus__footer_content_2">
-                        <h3>Subscribe To Our Newsletter</h3>
-                        <p>Get all the latest information on Events, Sales and Offers.
-                            Get all the latest information on Events.</p>
-                        <form>
-                            <input type="text" placeholder="Search...">
-                            <button type="submit" class="common_btn">subscribe</button>
-                        </form>
-                        <div class="footer_payment">
-                            <p>We're using safe payment for :</p>
-                            <img src="" alt="card" class="img-fluid">
-                        </div>
+                        <h3>CHI NHÁNH</h3>
+                        <p>Chi nhánh: 355/9 Sư Vạn Hạnh - P7 - Q10 - HCM</p>
+                        <p>Chi nhánh: 355/9 Sư Vạn Hạnh - P7 - Q10 - HCM</p>
+                        <p>Chi nhánh: 355/9 Sư Vạn Hạnh - P7 - Q10 - HCM</p>
+                        
+                       
                     </div>
                 </div>
             </div>
@@ -165,7 +155,7 @@
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="wsus__copyright d-flex justify-content-center">
-                            <p>Copyright © 2021 Sazao shop. All Rights Reserved.</p>
+                            <p>Copyright © LTNY.</p>
                         </div>
                     </div>
                 </div>
@@ -247,6 +237,34 @@
             });
         });
     </script>
+   {{-- <script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId: "1784956665094089",
+            xfbml: true,
+            version: "v2.6"
+        });
+    };
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) { return; }
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/vi_VN/sdk/xfbml.customerchat.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
+<div class="fb-customerchat" page_id="302435969619023"></div> --}}
+<!-- Start of LiveChat (www.livechat.com) code -->
+{{-- <script>
+    window.__lc = window.__lc || {};
+    window.__lc.license = 17808990;
+    ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e}(window,document,[].slice))
+</script> --}}
+{{-- <noscript><a href="https://www.livechat.com/chat-with/17808990/" rel="nofollow">Chat with us</a>, powered by <a href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript> --}}
+<!-- End of LiveChat code -->
+
+
+    {{-- <script src="//www.socialintents.com/api/chat/socialintents.1.3.js#2c9fa6a68f2fe733018f3428dea30413" async="async"></script> --}}
     {{-- <script>
         $(document).ready(function(){
       

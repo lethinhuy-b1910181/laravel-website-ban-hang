@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Brand;
 use App\Models\BrandCategory;
 use App\Models\Category;
+use App\Models\Product;
 use App\DataTables\BrandDataTable;
 use Str;
 use App\Traits\ImageUploadTrait;
@@ -126,10 +127,18 @@ class BrandController extends Controller
     public function destroy(string $id)
     {
         $brand = Brand::findOrFail($id);
-        $this->deleteImage($brand->image);
-        $brand->delete();
-
+        $products = Product::where('brand_id', $brand->id)->get();
+        if($products->count() == 0){
+            $this->deleteImage($brand->image);
+            $brand->delete();
         return response(['status' => 'success' , 'message' => 'Xóa thành công!']);
+        }else{
+            return response(['status' => 'error' , 'message' => 'Còn tồn tại sản phẩm thuộc thương hiệu này!']);
+
+        }
+
+        
+
     }
 
     public function changeStatus(Request $request){
@@ -137,6 +146,12 @@ class BrandController extends Controller
         $brand->status = $request->status ? 1 : 0;
      
         $brand->save();
+        $products = Product::where('brand_id', $request->id)->get();
+        foreach($products as $item){
+            $product =  Product::where('id', $item->id)->first();
+            $product->status =$request->status ? 1 : 0;
+            $product->save();
+        }
 
         return response(['message' => 'Cập nhật trạng thái thành công!']);
     }

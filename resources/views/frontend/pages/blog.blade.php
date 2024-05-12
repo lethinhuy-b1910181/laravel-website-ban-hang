@@ -1,88 +1,91 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<meta name="description" content="description">
-	<meta name="csrf-token" content="{{ csrf_token() }}">
-	<meta name="author" content="author">
-	<title>OpenAI</title>
-</head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-<body class="bg-dark">
-	<div class="conatiner m-5 p-5">
-		<div class="row m-5 p-5 border">
-			<div class="col-lg-8 offset-lg-2">
-				<form id="ask">
-					<h1 class="text-white">Ask ChatGPT</h1>
-					<div class="form-group">
-						<input type="text" class="form-control" name="question" id="question">
-						<div class="text-white" id="question_help"></div>
-					</div>
-					<button type="submit" class="btn btn-primary">Ask ChatGPT</button>
-				</form>
-			</div>
-
-			<div class="col-lg-8 offset-lg-2 mt-5" id="chat">
-			</div>
-
-		</div>
-	</div>
-</body>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<script type="text/javascript">
-	$.ajaxSetup({
-		headers : {
-			'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
-		}
-	})
-
-	baseUrl = {!! json_encode(url('/')) !!}
-
-	$('#ask').submit(function(event){
-		event.preventDefault();
-		var form = $('#ask')[0];
-		var formData = new FormData(form);
-
-		$.ajax({
-			url : baseUrl+'/send-message',
-			type : 'POST',
-			data : formData,
-			contentType : false,
-			processData : false,
-
-			success: function(data)
-			{
-				refresh();
-				var divQuestion = '<div class="bg-white rounded"><h4 class="p-2">Question : '+data.question+'</h6></div>';
-				var divAnswer = '<h5 class="text-white">Answer </h5><div class="bg-white rounded mb-3"><textarea class="w-100 form-control h-auto">'+data.answer+'</textarea></div>';
-				$('#chat').append(divQuestion);
-				$('#chat').append(divAnswer);
-			},
-			error: function(reject)
-			{
-				refresh();
-				if(reject.status = 422){
-					var errors = $.parseJSON(reject.responseText);
-					$.each(errors.errors , function(key, value){
-						$('#'+ key + '_help' ).text(value[0]);
-					})
-				}
-			}
-		});
-	});
-
-	function refresh()
-	{
-		$('#question_help').text('');
-	}
+@extends('frontend.layouts.master')
 
 
-</script>
+@section('content')
 
-</html>
+    <!--============================
+        BREADCRUMB START
+    ==============================-->
+    <section id="wsus__breadcrumb">
+        <div class="wsus_breadcrumb_overlay">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        
+                        <ul>
+                            <li><a href="{{ route('home') }}">Trang chủ</a></li>
+                            <li><a href="{{ route('blog') }}">Tin tức</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--============================
+        BREADCRUMB END
+    ==============================-->
+
+
+    <!--============================
+        BLOGS PAGE START
+    ==============================-->
+    <section id="wsus__blogs">
+		<h4 style="
+		text-align: center;
+		text-transform: capitalize;
+		font-size: 26px;
+		font-weight: 600;
+	">tất cả Tin tức</h4>
+        <div class="container">
+           @if (request()->has('search'))
+           <h5>Tìm kiếm: {{request()->search}}</h5>
+           <hr>
+           @elseif (request()->has('category'))
+           <h5>Tìm kiếm: {{request()->category}}</h5>
+           <hr>
+           @endif
+            <div class="row">
+                @foreach ($blogs as $blog)
+                <div class="col-xl-3">
+                    <div class="wsus__single_blog wsus__single_blog_2">
+                        <a class="wsus__blog_img" href="{{route('blog-details', $blog->slug)}}">
+                            <img src="{{asset($blog->image)}}" alt="blog" class="img-fluid w-100">
+                        </a>
+                        <div class="wsus__blog_text">
+                            <a class="blog_top red" href="#">{{$blog->category->name}}</a>
+                            <div class="wsus__blog_text_center">
+                                <a href="{{route('blog-details', $blog->slug)}}" style="
+									white-space: nowrap;
+									overflow: hidden;
+									text-overflow: ellipsis;
+								">{{ $blog->title }}</a>
+                                <p class="date">{{date('d-m-Y', strtotime($blog->created_at))}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+
+            </div>
+            @if (count($blogs) === 0)
+            <div class="row">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3>Sorry No Blog Found!</h3>
+                    </div>
+                </div>
+            </div>
+            @endif
+            <div id="pagination">
+                <div class="mt-5">
+                    @if ($blogs->hasPages())
+                        {{$blogs->withQueryString()->links()}}
+                    @endif
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--============================
+        BLOGS PAGE END
+    ==============================-->
+@endsection

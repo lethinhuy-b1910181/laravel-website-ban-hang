@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\BrandCategory;
 use App\Models\Brand;
 use App\Models\ProductImage;
+use App\Models\ProductReview;
 use App\Models\ColorDetail;
 use App\Traits\ImageUploadTrait;
 use App\DataTables\ProductDataTable;
@@ -113,11 +114,14 @@ class ProductController extends Controller
         $brand = Brand::where('id', $product->brand_id)->first();
         $sale = ColorDetail::where('product_id', $id)->sum('sale');
         $sl = ColorDetail::where('product_id', $id)->sum('quantity') - $sale;
+        $multiImgs = ProductImage::where('product_id', $id)->get();
 
         $receiptProduct = ReceiptProduct::where('product_id', $id)->get();
         $productColor = ColorDetail::where('product_id', $id)->get();
-
-        return view('admin.product.show', compact('product', 'category', 'brand','sl', 'receiptProduct', 'productColor', 'sale' ));
+        $reviews = ProductReview::where('product_id', $product->id)->latest()->get();
+        $dem = ProductReview::where('product_id', $product->id)->count();
+ 
+        return view('admin.product.show', compact('product','reviews', 'dem','multiImgs', 'category', 'brand','sl', 'receiptProduct', 'productColor', 'sale' ));
     }
 
     /**
@@ -275,9 +279,12 @@ class ProductController extends Controller
         if($product){
             $product->bonus = $request->bonus;
             $product->save();
-            return response()->json(['status' => 'success']);
+            toastr('Cập nhật dữ liệu thành công!', 'success');
+            return redirect()->back();
         } else {
-            return response()->json(['status' => 'error']);
+            toastr('Đã có lỗi xảy ra!', 'error');
+            return redirect()->back();
+          
         }
     }
 
